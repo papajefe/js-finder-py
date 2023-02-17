@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "seed-to-time"
+version = "0.1.0"
+description = "Seed to Time module for pyodide to access"
+authors = ["lincoln-lm <73306575+Lincoln-LM@users.noreply.github.com>"]
+license = "GPL-3.0-only"
+readme = "README.md"
+packages = [{include = "seed_to_time"}]
+
+[tool.poetry.dependencies]
+python = ">= 3.9, < 3.11"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

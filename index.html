@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+      <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      async function main(){
+        let pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy")
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install("numba_pokemon_prngs-0.1.0-py3-none-any.whl");
+        await micropip.install("./seed_to_time/dist/seed_to_time-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from seed_to_time import main as seed_to_time_main
+          seed_to_time_main()
+        `);
+      }
+      main();
+    </script>
+  </body>
+</html>

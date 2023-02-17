@@ -11,7 +11,7 @@ def main():
     print(f"{sys.version=}")
 
 
-def test_coinflip(target_seed: np.uint32, coinflip_seq: str):
+def test_coinflip(target_seed: np.uint32, coinflip_seq: str) -> str:
     """Test the coinflips for a target seed"""
     target_seed = np.uint32(target_seed)
     coinflip_seq = tuple(int(flip) for flip in coinflip_seq)
@@ -21,6 +21,7 @@ def test_coinflip(target_seed: np.uint32, coinflip_seq: str):
     seed_delay = target_seed & np.uint32(0xFFFF)
 
     test_seed_hour = np.uint32(seed_hour)
+    results = []
     for second in range(-2, 3):
         test_seed_high = (seed_high + np.uint32(second)) & np.uint32(0xFF)
         for delay in range(-200, 201):
@@ -32,5 +33,5 @@ def test_coinflip(target_seed: np.uint32, coinflip_seq: str):
             )
             rng = mersenne_twister.MersenneTwister(test_seed)
             if all((rng.next() & 1) == flip for flip in coinflip_seq):
-                print(f"{test_seed=:08X} is valid!")
-    print("Search Done!")
+                results.append(f"{test_seed=:08X} is valid!")
+    return "\n".join(results)

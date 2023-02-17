@@ -35,10 +35,12 @@
 
       function submitData() {
         console.log("Submitted Data");
-        pyodide.runPython(
-          `seed_to_time.test_coinflip(0x${
-            document.getElementsByName("seed")[0].value
-          }, '${document.getElementsByName("coinflip")[0].value}')`
+        alert(
+          pyodide.runPython(
+            `seed_to_time.test_coinflip(0x${
+              document.getElementsByName("seed")[0].value
+            }, '${document.getElementsByName("coinflip")[0].value}')`
+          )
         );
       }
     </script>

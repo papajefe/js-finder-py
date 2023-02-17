@@ -6,8 +6,8 @@ rm -r build
 # install build requirements
 pip install -r requirements.txt
 
-# Build seed_to_time
-cd ./seed_to_time/
+# Build modules
+cd ./js_finder/
 poetry run poetry build --format=wheel
 cd ..
 
@@ -15,4 +15,4 @@ cd ..
 mkdir build
 cp ./index.html ./build/
 cp ./numba_pokemon_prngs-0.1.0-py3-none-any.whl ./build/
-cp ./seed_to_time/dist/seed_to_time-0.1.0-py3-none-any.whl ./build
+cp ./js_finder/dist/js_finder-0.1.0-py3-none-any.whl ./build

@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "seed-to-time"
+name = "js-finder"
 version = "0.1.0"
-description = "Seed to Time module for pyodide to access"
+description = "JS Finder module for pyodide to access"
 authors = ["lincoln-lm <73306575+Lincoln-LM@users.noreply.github.com>"]
 license = "GPL-3.0-only"
 readme = "README.md"
-packages = [{include = "seed_to_time"}]
+packages = [{include = "js_finder"}]
 
 [tool.poetry.dependencies]
 python = ">= 3.9, < 3.11"

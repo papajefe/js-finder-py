@@ -1,0 +1,13 @@
+.github
+build
+include
+js_finder
+node_modules
+Lib
+Scripts
+.gitignore
+.python-version
+LICENSE
+*.sh
+*.whl
+*.txt

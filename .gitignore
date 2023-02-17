@@ -165,3 +165,4 @@ Include
 Lib
 Scripts
 .python-version
+node_modules

@@ -44,13 +44,17 @@
         );
       }
     </script>
-    <input type="text" name="seed" value="" />
-    <label for="seed"> - Target Seed (hex)</label>
-    <br />
-    <input type="text" name="coinflip" value="" />
-    <label for="coinflip"> - Coinflip Sequence (1=heads, 0=tails)</label>
-    <button class="button-1" onclick="submitData()">Submit</button>
-    <br />
-    <span name="results"></span>
+    <div name="input-info" class="info">
+      <input style="margin: 5px" type="text" name="seed" />
+      <label for="seed"> - Target Seed (hex)</label>
+      <br />
+      <input style="margin: 5px" type="text" name="coinflip" value="" />
+      <label for="coinflip"> - Coinflip Sequence (1: heads, 0: tails)</label>
+      <br />
+      <button style="margin: 5px" class="button-1" onclick="submitData()">
+        Submit
+      </button>
+    </div>
+    <div name="results" class="info"></div>
   </body>
 </html>

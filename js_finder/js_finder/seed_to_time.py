@@ -33,5 +33,9 @@ def test_coinflip(target_seed: np.uint32, coinflip_seq: str) -> str:
             )
             rng = mersenne_twister.MersenneTwister(test_seed)
             if all((rng.next() & 1) == flip for flip in coinflip_seq):
-                results.append(f"{test_seed=:08X} is valid!")
-    return "\n".join(results)
+                rng = mersenne_twister.MersenneTwister(test_seed)
+                flips = "".join(str(rng.next() & 1) for _ in range(12))
+                results.append(
+                    f"{test_seed = :08X} is valid! {test_seed_delay = } {flips = }"
+                )
+    return "<br />".join(results)

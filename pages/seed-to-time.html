@@ -34,13 +34,13 @@
       main();
 
       function submitData() {
+        let result_p = document.getElementsByName("results")[0];
+        result_p.innerHTML = "Loading ...";
         console.log("Submitted Data");
-        alert(
-          pyodide.runPython(
-            `seed_to_time.test_coinflip(0x${
-              document.getElementsByName("seed")[0].value
-            }, '${document.getElementsByName("coinflip")[0].value}')`
-          )
+        result_p.innerHTML = pyodide.runPython(
+          `seed_to_time.test_coinflip(0x${
+            document.getElementsByName("seed")[0].value
+          }, '${document.getElementsByName("coinflip")[0].value}')`
         );
       }
     </script>
@@ -50,5 +50,7 @@
     <input type="text" name="coinflip" value="" />
     <label for="coinflip"> - Coinflip Sequence (1=heads, 0=tails)</label>
     <button class="button-1" onclick="submitData()">Submit</button>
+    <br />
+    <span name="results"></span>
   </body>
 </html>

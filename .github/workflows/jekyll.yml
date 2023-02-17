@@ -43,6 +43,7 @@ jobs:
           pip install -r requirements.txt
           cd ./seed_to_time/
           poetry run poetry build --format=wheel
+          cd ../
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@ee2113536afb7f793eed4ce60e8d3b26db912da4 # v1.127.0

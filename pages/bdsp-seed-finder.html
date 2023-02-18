@@ -30,6 +30,10 @@
     <canvas id="tracking_input"></canvas>
     <canvas id="tracking_output"></canvas>
     <script>
+      window.onerror = function (msg, url, linenumber) {
+        alert(`Error message: ${msg}\nURL: ${url}\nLine Number: ${linenumber}`);
+        return true;
+      };
       async function eyeUploaded() {
         let file = eyeUpload.files[0];
         let dataUrl = await new Promise((resolve) => {

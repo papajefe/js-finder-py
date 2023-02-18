@@ -15,26 +15,22 @@
   </head>
 
   <body>
-    <button onclick="process()" class="button-1">Start</button> <br />
-    <video
-      style="width: 50%; max-width: 900px"
-      autoplay="true"
-      id="video"
-      playsinline
-    ></video
-    ><br />
-    <label>
-      Upload Eye Image
-      <input
-        type="file"
-        id="eyeUpload"
-        accept="image/*"
-        onchange="eyeUploaded()"
-      />
-    </label>
-    <img id="eye" /> <br />
-    <canvas style="width: 25%; max-width: 450px" id="tracking_input"></canvas>
-    <canvas style="width: 25%; max-width: 450px" id="tracking_output"></canvas>
+    <div style="width: 25%">
+      <button onclick="process()" class="button-1">Start</button> <br />
+      <video autoplay="true" id="video" playsinline></video><br />
+      <label>
+        Upload Eye Image
+        <input
+          type="file"
+          id="eyeUpload"
+          accept="image/*"
+          onchange="eyeUploaded()"
+        />
+      </label>
+      <img id="eye" /> <br />
+      <canvas id="tracking_input"></canvas>
+      <canvas id="tracking_output"></canvas>
+    </div>
     <script>
       async function eyeUploaded() {
         let file = eyeUpload.files[0];

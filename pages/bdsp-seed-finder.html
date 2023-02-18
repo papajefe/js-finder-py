@@ -77,14 +77,15 @@
         tracking_input.captureVideo = captureVideo;
       }
       async function process() {
+        let data_url;
         try {
-          let data_url = pyodide.runPython(
+          data_url = pyodide.runPython(
             `
               import binascii
               import cv2
               import numpy as np
               from js import tracking_input, tracking_output, eye
-              eye_buffer = np.frombuffer(binascii.a2b_base64(eye.src.split("data:image/png;base64,")[1]), dtype=np.uint8)
+              eye_buffer = np.frombuffer(binascii.a2b_base64(eye.src.split(";base64,")[1]), dtype=np.uint8)
               eye_buffer = cv2.imdecode(eye_buffer, cv2.IMREAD_COLOR)
               eye_buffer = cv2.cvtColor(eye_buffer,cv2.COLOR_RGB2GRAY)
               buffer = np.frombuffer(binascii.a2b_base64(tracking_input.captureVideo().split(";base64,")[1]), dtype=np.uint8)

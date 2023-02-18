@@ -1,6 +1,6 @@
 @import url(./vars.css);
 
-* :not(.leaflet-marker-icon, .leaflet-top) {
+* :not(.leaflet-marker-icon, .leaflet-top, #detach-button-host) {
   background-color: var(--main-bg);
   color: var(--main-fg);
 }

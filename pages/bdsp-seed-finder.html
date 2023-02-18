@@ -47,7 +47,7 @@
           await pyodide.loadPackage("numpy");
           await pyodide.loadPackage("opencv-python");
           const micropip = pyodide.pyimport("micropip");
-        } catch err {
+        } catch (err) {
           alert("Failed to load pyodide!");
           alert(err);
           return;
@@ -104,7 +104,7 @@
               (b"data:image/png;base64," + binascii.b2a_base64(buffer)).decode("utf-8")
             `
           );
-        } catch err {
+        } catch (err) {
           alert("Failed to process image!");
           alert(err);
           return;

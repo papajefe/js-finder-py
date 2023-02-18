@@ -30,10 +30,6 @@
     <canvas id="tracking_input"></canvas>
     <canvas id="tracking_output"></canvas>
     <script>
-      window.onerror = function (msg, url, linenumber) {
-        alert(`Error message: ${msg}\nURL: ${url}\nLine Number: ${linenumber}`);
-        return true;
-      };
       async function eyeUploaded() {
         let file = eyeUpload.files[0];
         let dataUrl = await new Promise((resolve) => {
@@ -45,11 +41,17 @@
       }
       let pyodide;
       async function main() {
-        pyodide = await loadPyodide();
-        await pyodide.loadPackage("micropip");
-        await pyodide.loadPackage("numpy");
-        await pyodide.loadPackage("opencv-python");
-        const micropip = pyodide.pyimport("micropip");
+        try {
+          pyodide = await loadPyodide();
+          await pyodide.loadPackage("micropip");
+          await pyodide.loadPackage("numpy");
+          await pyodide.loadPackage("opencv-python");
+          const micropip = pyodide.pyimport("micropip");
+        } catch err {
+          alert("Failed to load pyodide!");
+          alert(err);
+          return;
+        }
 
         if (navigator.mediaDevices.getUserMedia) {
           navigator.mediaDevices
@@ -62,7 +64,8 @@
               video.srcObject = stream;
             })
             .catch(function (err) {
-              console.log(err);
+              alert("Failed to grab camera!");
+              alert(err);
             });
         }
         function captureVideo() {
@@ -74,8 +77,9 @@
         tracking_input.captureVideo = captureVideo;
       }
       async function process() {
-        let data_url = pyodide.runPython(
-          `
+        try {
+          let data_url = pyodide.runPython(
+            `
               import binascii
               import cv2
               import numpy as np
@@ -99,7 +103,12 @@
               buffer = cv2.imencode('.png', buffer)[1]
               (b"data:image/png;base64," + binascii.b2a_base64(buffer)).decode("utf-8")
             `
-        );
+          );
+        } catch err {
+          alert("Failed to process image!");
+          alert(err);
+          return;
+        }
         let img = new Image();
         img.onload = () => {
           tracking_output.width = video.videoWidth;

@@ -16,7 +16,8 @@
 
   <body>
     <button onclick="process()" class="button-1">Start</button> <br />
-    <video autoplay="true" id="video" playsinline></video><br />
+    <video style="width: 50%" autoplay="true" id="video" playsinline></video
+    ><br />
     <label>
       Upload Eye Image
       <input
@@ -27,8 +28,8 @@
       />
     </label>
     <img id="eye" /> <br />
-    <canvas id="tracking_input"></canvas>
-    <canvas id="tracking_output"></canvas>
+    <canvas style="width: 50%" id="tracking_input"></canvas>
+    <canvas style="width: 50%" id="tracking_output"></canvas>
     <script>
       async function eyeUploaded() {
         let file = eyeUpload.files[0];

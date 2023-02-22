@@ -23,7 +23,7 @@
         await pyodide.loadPackage("numpy");
         const micropip = pyodide.pyimport("micropip");
         await micropip.install(
-          "https://github.com/Lincoln-LM/numba_pokemon_prngs/releases/download/latest/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
         );
         await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
         await pyodide.runPython(`

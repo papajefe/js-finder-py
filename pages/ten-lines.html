@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let pyodide;
+      async function main() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy");
+        await pyodide.loadPackage("typing-extensions");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+        );
+        await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from js_finder import ten_lines
+          ten_lines.main()
+        `);
+      }
+      main().then((_) => enableElements());
+
+      function enableElements() {
+        notice_footer.innerHTML = 'Original "10 lines" by Shao';
+        seed_input.disabled = false;
+        num_results_input.disabled = false;
+      }
+
+      function submitData() {
+        console.log("Submitted Data");
+        pyodide
+          .runPythonAsync(
+            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value})`
+          )
+          .then((results) => {
+            results_table_body.innerHTML = results;
+          });
+      }
+    </script>
+    <div name="input-info" class="info">
+      <input
+        style="margin: 5px"
+        type="text"
+        name="seed"
+        id="seed_input"
+        value="DEADBEEF"
+        disabled
+      />
+      <label for="seed"> - Target Seed (hex)</label>
+      <br />
+      <input
+        style="margin: 5px"
+        type="number"
+        name="num-results"
+        id="num_results_input"
+        value="5"
+        disabled
+      />
+      <label for="num-results"> - Number of results</label>
+      <br />
+      <button style="margin: 5px" class="button-1" onclick="submitData()">
+        Submit
+      </button>
+    </div>
+    <div name="results" id="results_div" class="info">
+      <table name="results-table" id="states">
+        <thead>
+          <tr>
+            <th>Seed (dec)</th>
+            <th>Seed (hex)</th>
+            <th>Advances</th>
+            <th>Est. Total Frames</th>
+            <th>Est. Total Time</th>
+          </tr>
+        </thead>
+        <tbody id="results_table_body"></tbody>
+      </table>
+    </div>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

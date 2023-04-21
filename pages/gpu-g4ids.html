@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+  </head>
+  <body>
+    <canvas id="canvas" hidden></canvas>
+    <script type="text/javascript">
+      const SPLIT = 4;
+      let input_data,
+        input_buffer,
+        output_buffer,
+        device,
+        pipeline,
+        bind_group,
+        empty_output_data;
+      async function main() {
+        let adapter;
+        try {
+          adapter = await navigator.gpu.requestAdapter();
+        } catch (error) {
+          // navigator.gpu is undefined if WebGPU cannot be accessed
+          notice_footer.innerHTML = "Error: WebGPU Unavailable or Inaccessible";
+          throw error;
+        }
+
+        device = await adapter.requestDevice();
+
+        canvas.getContext("webgpu").configure({
+          device: device,
+          format: navigator.gpu.getPreferredCanvasFormat(),
+        });
+
+        const shader_module = device.createShaderModule({
+          code: await (await fetch("g4ids_shader.wgsl")).text(),
+        });
+
+        input_data = new Uint32Array([0, 0]);
+
+        // input data is [(sid << 16) | tid, z offset]
+        input_buffer = device.createBuffer({
+          size: input_data.byteLength,
+          usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+        });
+
+        empty_output_data = new Uint32Array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+        // output data is [result count, results[9]]
+        // 9 results is a generous over-estimate
+        output_buffer = device.createBuffer({
+          size: empty_output_data.byteLength,
+          usage:
+            GPUBufferUsage.STORAGE |
+            GPUBufferUsage.COPY_SRC |
+            GPUBufferUsage.COPY_DST,
+        });
+
+        const layout = device.createBindGroupLayout({
+          entries: [
+            {
+              binding: 0,
+              visibility: GPUShaderStage.COMPUTE,
+              buffer: {
+                type: "read-only-storage",
+              },
+            },
+            {
+              binding: 1,
+              visibility: GPUShaderStage.COMPUTE,
+              buffer: {
+                type: "storage",
+              },
+            },
+          ],
+        });
+
+        pipeline = device.createComputePipeline({
+          layout: device.createPipelineLayout({
+            bindGroupLayouts: [layout],
+          }),
+          compute: {
+            module: shader_module,
+            entryPoint: "main",
+          },
+        });
+
+        bindGroup = device.createBindGroup({
+          layout: layout,
+          entries: [
+            {
+              binding: 0,
+              resource: {
+                buffer: input_buffer,
+                offset: 0,
+                size: input_data.byteLength,
+              },
+            },
+            {
+              binding: 1,
+              resource: {
+                buffer: output_buffer,
+                offset: 0,
+                size: empty_output_data.byteLength,
+              },
+            },
+          ],
+        });
+      }
+      window.addEventListener("load", (event) => {
+        main().then((_) => enableElements());
+      });
+
+      function enableElements() {
+        notice_footer.innerHTML = "";
+        tid_input.disabled = false;
+        sid_input.disabled = false;
+        submit_button.disabled = false;
+      }
+
+      async function submitData() {
+        while (states.rows.length > 1) {
+          states.deleteRow(1);
+        }
+        device.queue.writeBuffer(
+          output_buffer,
+          0,
+          empty_output_data.buffer,
+          empty_output_data.byteOffset,
+          empty_output_data.byteLength
+        );
+        input_data[0] =
+          parseInt(sid_input.value) * 65536 + parseInt(tid_input.value);
+        let array_buffer;
+        // split the z dimension into multiple passes to avoid crashing
+        for (let z_offset = 0; z_offset < 4096; z_offset += 4096 / SPLIT) {
+          notice_footer.innerHTML = `Processing: ${z_offset}/${4096}`;
+          let command_encoder = device.createCommandEncoder();
+          let pass_encoder = command_encoder.beginComputePass();
+          pass_encoder.setPipeline(pipeline);
+          pass_encoder.setBindGroup(0, bindGroup);
+          input_data[1] = z_offset;
+
+          device.queue.writeBuffer(
+            input_buffer,
+            0,
+            input_data.buffer,
+            input_data.byteOffset,
+            input_data.byteLength
+          );
+
+          // workgroup is (4, 4, 16)
+          pass_encoder.dispatchWorkgroups(
+            1024 / 4,
+            1024 / 4,
+            4096 / 16 / SPLIT
+          );
+          pass_encoder.end();
+
+          let gpu_read_buffer = device.createBuffer({
+            size: empty_output_data.byteLength,
+            usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+          });
+          command_encoder.copyBufferToBuffer(
+            output_buffer,
+            0,
+            gpu_read_buffer,
+            0,
+            empty_output_data.byteLength
+          );
+          device.queue.submit([command_encoder.finish()]);
+          await gpu_read_buffer.mapAsync(GPUMapMode.READ);
+          array_buffer = gpu_read_buffer.getMappedRange();
+        }
+        let results = new Uint32Array(array_buffer);
+        results = results.slice(1, results[0] + 1);
+        for (let i = 0; i < results.length; i++) {
+          let row = states.insertRow(1);
+          let cell = row.insertCell(0);
+          cell.innerHTML = results[i]
+            .toString(16)
+            .padStart(8, "0")
+            .toUpperCase();
+        }
+        notice_footer.innerHTML = "";
+      }
+    </script>
+    <div name="input-info" class="info">
+      <input
+        style="margin: 5px"
+        type="number"
+        name="tid"
+        id="tid_input"
+        value="12345"
+        disabled
+      />
+      <label for="tid"> - TID</label>
+      <br />
+      <input
+        style="margin: 5px"
+        type="number"
+        name="sid"
+        id="sid_input"
+        value="0"
+        disabled
+      />
+      <label for="sid"> - SID</label>
+      <br />
+      <button
+        id="submit_button"
+        style="margin: 5px"
+        class="button-1"
+        onclick="submitData()"
+        disabled
+      >
+        Submit
+      </button>
+    </div>
+    <div name="results" id="results_div" class="info">
+      <table name="results-table" id="states">
+        <thead>
+          <tr>
+            <th>Initial Seed</th>
+          </tr>
+        </thead>
+        <tbody id="results_table_body"></tbody>
+      </table>
+    </div>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

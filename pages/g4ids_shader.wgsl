@@ -9,7 +9,7 @@ struct Output {
 @compute
 @workgroup_size(4, 4, 16)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    var seed: u32 = (global_id.x << 22) | (global_id.y << 12) | (global_id.z + input_data[1]);
+    var seed: u32 = (global_id.x << 22u) | (global_id.y << 12u) | (global_id.z + input_data[1]);
 
     var s1: u32 = (0x6C078965u * (seed ^ (seed >> 30u))) + 1u;
     var s2: u32 = (0x6C078965u * (s1 ^ (s1 >> 30u))) + 2u;

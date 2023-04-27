@@ -16,7 +16,7 @@
   <body>
     <canvas id="canvas" hidden></canvas>
     <script type="text/javascript">
-      const SPLIT = 4;
+      let split = 4;
       let input_data,
         input_buffer,
         output_buffer,
@@ -147,7 +147,7 @@
           parseInt(sid_input.value) * 65536 + parseInt(tid_input.value);
         let array_buffer;
         // split the z dimension into multiple passes to avoid crashing
-        for (let z_offset = 0; z_offset < 4096; z_offset += 4096 / SPLIT) {
+        for (let z_offset = 0; z_offset < 4096; z_offset += 4096 / split) {
           notice_footer.innerHTML = `Processing: ${z_offset}/${4096}`;
           let command_encoder = device.createCommandEncoder();
           let pass_encoder = command_encoder.beginComputePass();
@@ -167,7 +167,7 @@
           pass_encoder.dispatchWorkgroups(
             1024 / 4,
             1024 / 4,
-            4096 / 16 / SPLIT
+            4096 / 16 / split
           );
           pass_encoder.end();
 

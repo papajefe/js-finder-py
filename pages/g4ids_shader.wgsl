@@ -6,8 +6,6 @@ struct Output {
 @binding(0) @group(0) var<storage, read> input_data: array<u32>;
 @binding(1) @group(0) var<storage, read_write> output_data: Output;
 
-const MAG = array(0u, 0x9908B0DFu);
-
 @compute
 @workgroup_size(4, 4, 16)
 fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
@@ -21,7 +19,7 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     }
 
     var y: u32 = (s1 & 0x80000000u) | (s2 & 0x7fffffffu);
-    s1 = (s398 ^ (y >> 1u)) ^ MAG[y & 1u];
+    s1 = (s398 ^ (y >> 1u)) ^ ((y & 1u) * 0x9908B0DFu);
     y = s1 ^ (s1 >> 11u);
     y ^= (y << 7u) & 0x9d2c5680u;
     y ^= (y << 15u) & 0xefc60000u;

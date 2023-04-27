@@ -25,6 +25,6 @@ fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
     y ^= (y << 15u) & 0xefc60000u;
     y ^= y >> 18u;
     if (y == input_data[0]) {
-        output_data.data[atomicAdd(&output_data.index, 1)] = seed;
+        output_data.data[atomicAdd(&output_data.index, 1u)] = seed;
     }
 }

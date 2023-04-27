@@ -117,7 +117,12 @@
         });
       }
       window.addEventListener("load", (event) => {
-        main().then((_) => enableElements());
+        main()
+          .then((_) => enableElements())
+          .catch((error) => {
+            notice_footer.innerHTML += "<br />" + error;
+            console.error(error);
+          });
       });
 
       function enableElements() {

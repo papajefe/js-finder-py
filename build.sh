@@ -1,7 +1,8 @@
 #!bin/bash
 
-# remove build directory if it exists
+# remove build/dist directory if they exist
 rm -r build
+rm -r dist
 
 # install build requirements
 pip install -r requirements.txt
@@ -14,6 +15,8 @@ cd ..
 # download modules
 mkdir dist
 wget https://github.com/Lincoln-LM/numba_pokemon_prngs/releases/download/latest/numba_pokemon_prngs-0.1.0-py3-none-any.whl -O ./dist/numba_pokemon_prngs-0.1.0-py3-none-any.whl
+wget https://github.com/Lincoln-LM/wgpu-gen4ids/releases/download/latest/wgpu-gen4ids.zip
+unzip wgpu-gen4ids.zip -d ./dist/
 
 # copy to build folder
 mkdir build
@@ -23,3 +26,4 @@ cp -r ./pages/ ./build/pages/
 cp ./index.html ./build/
 cp ./dist/numba_pokemon_prngs-0.1.0-py3-none-any.whl ./build/wheels/
 cp ./js_finder/dist/js_finder-0.1.0-py3-none-any.whl ./build/wheels/
+mv ./dist/package/ ./build/pages/wgpu_gen4ids/

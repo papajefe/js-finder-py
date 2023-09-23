@@ -17,6 +17,7 @@ mkdir dist
 wget https://github.com/Lincoln-LM/numba_pokemon_prngs/releases/download/latest/numba_pokemon_prngs-0.1.0-py3-none-any.whl -O ./dist/numba_pokemon_prngs-0.1.0-py3-none-any.whl
 wget https://github.com/Lincoln-LM/wgpu-gen4ids/releases/download/latest/wgpu-gen4ids.zip
 unzip wgpu-gen4ids.zip -d ./dist/
+rm wgpu-gen4ids.zip
 
 # copy to build folder
 mkdir build
@@ -27,3 +28,4 @@ cp ./index.html ./build/
 cp ./dist/numba_pokemon_prngs-0.1.0-py3-none-any.whl ./build/wheels/
 cp ./js_finder/dist/js_finder-0.1.0-py3-none-any.whl ./build/wheels/
 mv ./dist/package/ ./build/pages/wgpu_gen4ids/
+rm ./build/pages/wgpu_gen4ids/.gitignore

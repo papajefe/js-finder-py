@@ -100,15 +100,17 @@ def pull_frlg_seeds():
         if i == 0:
             continue
         if row[0]:
-            frame = int(row[0]) + 4062
+            frame = int(row[0]) + 4062 / 2
 
             def add_seed(col, sound, l, button):
                 seed = int(row[col], 16)
                 frlg_seeds["lg"][sound][l][button]["no"][seed] = frame
                 frlg_seeds["lg"][sound][l][button]["yes"][
+                    (seed + (7 if l == "help" else -1)) & 0xFFFF
+                ] = frame
+                frlg_seeds["lg_eu"][sound][l][button]["no"][
                     (seed + EU_OFFSETS[l]["no"]) & 0xFFFF
                 ] = frame
-                frlg_seeds["lg_eu"][sound][l][button]["no"][seed] = frame
                 frlg_seeds["lg_eu"][sound][l][button]["yes"][
                     (seed + EU_OFFSETS[l]["yes"]) & 0xFFFF
                 ] = frame

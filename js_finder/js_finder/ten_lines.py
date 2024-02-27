@@ -2,6 +2,7 @@
 
 from importlib import resources as importlib_resources
 from math import floor
+from itertools import cycle
 import sys
 import datetime
 import json
@@ -96,11 +97,12 @@ def get_data_date():
 
 def filter_frlg(seeds: np.ndarray, result_count: int) -> np.ndarray:
     """Filter a list of seeds for the first result_count seeds possible in FRLG"""
-    seeds = iter(seeds)
+    seeds = cycle(seeds)
     results = np.empty((result_count, 3), np.uint32)
     i = 0
     while i < result_count:
-        (advance, seed) = next(seeds)
+        data = next(seeds)
+        (advance, seed) = data
         frame = FRLG_DATA.get(str(seed), None)
         if frame is None:
             continue

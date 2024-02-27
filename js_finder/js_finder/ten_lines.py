@@ -96,7 +96,9 @@ def get_data_date():
 
 
 def filter_frlg(
-    seeds: np.ndarray, result_count: int
+    seeds: np.ndarray,
+    result_count: int,
+    game: str,
 ) -> Iterable[Collection[np.uint32 | str]]:
     """Filter a list of seeds for the first result_count seeds possible in FRLG"""
     seeds = cycle(seeds)
@@ -108,7 +110,9 @@ def filter_frlg(
             for l in ("la", "help", "lr"):
                 for button in ("a", "start") + (("l",) if l == "la" else ()):
                     for select in ("no", "yes"):
-                        frame = FRLG_DATA[sound][l][button][select].get(str(seed), None)
+                        frame = FRLG_DATA[game][sound][l][button][select].get(
+                            str(seed), None
+                        )
                         if frame is not None:
                             yield (
                                 advance,
@@ -120,15 +124,15 @@ def filter_frlg(
 
 
 def ten_lines(
-    target_seed: int, result_count: int, frlg: bool
+    target_seed: int, result_count: int, game: str
 ) -> Iterable[Collection[np.uint32 | str]]:
     """Efficiently find the closest initial seeds up to result_count results"""
-    if frlg:
-        return filter_frlg(find_initial_seeds(target_seed), result_count)
-    return (
-        (advance, seed, seed, "")
-        for (advance, seed) in find_initial_seeds(target_seed, result_count)
-    )
+    if game == "painting":
+        return (
+            (advance, seed, seed, "")
+            for (advance, seed) in find_initial_seeds(target_seed, result_count)
+        )
+    return filter_frlg(find_initial_seeds(target_seed), result_count, game)
 
 
 def find_initial_seeds(target_seed: int, result_count: int = 0x10000) -> np.ndarray:
@@ -180,7 +184,7 @@ def main():
     print(f"{sys.version=}")
 
 
-def run_ten_lines(target_seed: int, num_results: int, frlg: bool) -> str:
+def run_ten_lines(target_seed: int, num_results: int, game: str) -> str:
     """Run ten lines to find origin seeds"""
     # no longer actually 10 lines
 
@@ -197,6 +201,6 @@ def run_ten_lines(target_seed: int, num_results: int, frlg: bool) -> str:
             "</tr>"
         )
         for (advance, seed, seed_frame, info) in ten_lines(
-            target_seed, num_results, frlg
+            target_seed, num_results, game
         )
     )

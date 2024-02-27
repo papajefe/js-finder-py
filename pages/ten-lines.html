@@ -46,22 +46,23 @@
             "ten_lines.get_data_date()"
           )
           .then((date) => {
-            notice_footer.innerHTML = `Original "10 lines" was created by Shao</br>FRLG seed data as of ${date}`;
+            notice_footer.innerHTML = `Original "10 lines" was created by Shao, FRLG seeds farmed by blisy, po, and トノ</br>FRLG seed data as of ${date}`;
           });
         seed_input.disabled = false;
-        frlg_check.disabled = false;
+        game_select.disabled = false;
         num_results_input.disabled = false;
-        frlg_check.addEventListener('change', (event) => {
-          states.className = event.currentTarget.checked ? "frlg-table" : "rse-table";
+        game_select.addEventListener('change', (event) => {
+          states.className = event.currentTarget.value == "painting" ? "rse-table" : "frlg-table";
+          results_table_body.innerHTML = "";
         })
-        states.className = frlg_check.checked ? "frlg-table" : "rse-table";
+        states.className = game_select.value == "painting" ? "rse-table" : "frlg-table";
       }
 
       function submitData() {
         console.log("Submitted Data");
         pyodide
           .runPythonAsync(
-            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, ${frlg_check.checked ? "True" : "False"})`
+            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}")`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -90,14 +91,22 @@
       />
       <label for="num-results"> - Number of results</label>
       <br />
-      <input
-        style="margin: 5px"
-        type="checkbox"
-        name="frlg-check"
-        id="frlg_check"
+      <select
+        style="margin: 5px; width:250px"
+        name="game-select"
+        id="game_select"
         disabled
-      />
-      <label for="frlg-check"> - FRLG Beta</label>
+      >
+        <option value="painting">Painting Seed</option>
+        <option value="fr">FireRed (ENG)</option>
+        <option value="fr_eu">FireRed (SPA/FRE/ITA/GER)</option>
+        <option value="fr_jpn_1_0">FireRed (JPN) (1.0)</option>
+        <option value="fr_jpn_1_1">FireRed (JPN) (1.1)</option>
+        <option value="lg">LeafGreen (ENG)</option>
+        <option value="lg_eu">LeafGreen (SPA/FRE/ITA/GER)</option>
+        <option value="lg_jpn">LeafGreen (JPN)</option>
+      </select>
+      <label for="game-select"> - Game</label>
       <br />
       <button style="margin: 5px" class="button-1" onclick="submitData()">
         Submit

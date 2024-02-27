@@ -95,30 +95,38 @@ def get_data_date():
     return FRLG_DATA["time_stamp"]
 
 
-def filter_frlg(seeds: np.ndarray, result_count: int) -> np.ndarray:
+def filter_frlg(
+    seeds: np.ndarray, result_count: int
+) -> Iterable[Collection[np.uint32 | str]]:
     """Filter a list of seeds for the first result_count seeds possible in FRLG"""
     seeds = cycle(seeds)
-    results = np.empty((result_count, 3), np.uint32)
     i = 0
     while i < result_count:
         data = next(seeds)
         (advance, seed) = data
-        frame = FRLG_DATA.get(str(seed), None)
-        if frame is None:
-            continue
-        results[i, :] = (advance, seed, frame)
-        i += 1
-    return results
+        for sound in ("stereo", "mono"):
+            for l in ("la", "help", "lr"):
+                for button in ("a", "start") + (("l",) if l == "la" else ()):
+                    for select in ("no", "yes"):
+                        frame = FRLG_DATA[sound][l][button][select].get(str(seed), None)
+                        if frame is not None:
+                            yield (
+                                advance,
+                                seed,
+                                frame,
+                                f"{sound=}, {l=}, {button=}, {select=}",
+                            )
+                            i += 1
 
 
 def ten_lines(
     target_seed: int, result_count: int, frlg: bool
-) -> Iterable[Collection[np.uint32]]:
+) -> Iterable[Collection[np.uint32 | str]]:
     """Efficiently find the closest initial seeds up to result_count results"""
     if frlg:
         return filter_frlg(find_initial_seeds(target_seed), result_count)
     return (
-        (advance, seed, seed)
+        (advance, seed, seed, "")
         for (advance, seed) in find_initial_seeds(target_seed, result_count)
     )
 
@@ -172,7 +180,7 @@ def main():
     print(f"{sys.version=}")
 
 
-def run_ten_lines(target_seed: int, num_results: int, frlg: bool = True) -> str:
+def run_ten_lines(target_seed: int, num_results: int, frlg: bool) -> str:
     """Run ten lines to find origin seeds"""
     # no longer actually 10 lines
 
@@ -182,10 +190,13 @@ def run_ten_lines(target_seed: int, num_results: int, frlg: bool = True) -> str:
             f"<td>{seed}</td>"
             f"<td>{seed:04X}</td>"
             f"<td>{advance}</td>"
-            f"<td>{seed_frame + advance}</td>"
-            f"<td>{datetime.timedelta(seconds=floor((seed_frame + advance) / (16777216 / 280896) / 2))}</td>"
-            f"<td>{floor((seed_frame) / (16777216 / 280896) / 2 * 1000)}ms</td>"
+            f"<td>{floor(seed_frame + advance)}</td>"
+            f"<td>{datetime.timedelta(seconds=floor((seed_frame + advance) / (16777216 / 280896)))}</td>"
+            f"<td>{floor((seed_frame) / (16777216 / 280896) * 1000)}ms</td>"
+            f"<td>{info}</td>"
             "</tr>"
         )
-        for (advance, seed, seed_frame) in ten_lines(target_seed, num_results, frlg)
+        for (advance, seed, seed_frame, info) in ten_lines(
+            target_seed, num_results, frlg
+        )
     )

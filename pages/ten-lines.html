@@ -9,6 +9,12 @@
       * {
         font-family: "Montserrat", sans-serif;
       }
+      .frlg-table tr > *:nth-child(1) {
+        display: none;
+      }
+      .rse-table tr > *:nth-child(7) {
+        display: none;
+      }
     </style>
     <link rel="stylesheet" href="./../css/main.css" />
     <link rel="stylesheet" href="./../css/states.css" />
@@ -45,6 +51,10 @@
         seed_input.disabled = false;
         frlg_check.disabled = false;
         num_results_input.disabled = false;
+        frlg_check.addEventListener('change', (event) => {
+          states.className = event.currentTarget.checked ? "frlg-table" : "rse-table";
+        })
+        states.className = frlg_check.checked ? "frlg-table" : "rse-table";
       }
 
       function submitData() {
@@ -57,6 +67,7 @@
             results_table_body.innerHTML = results;
           });
       }
+
     </script>
     <div name="input-info" class="info">
       <input
@@ -93,7 +104,7 @@
       </button>
     </div>
     <div name="results" id="results_div" class="info">
-      <table name="results-table" id="states">
+      <table name="results-table" id="states" class="rse-table">
         <thead>
           <tr>
             <th>Seed (dec)</th>
@@ -102,6 +113,7 @@
             <th>Est. Total Frames</th>
             <th>Est. Total Time</th>
             <th>Seed Time</th>
+            <th>Settings</th>
           </tr>
         </thead>
         <tbody id="results_table_body"></tbody>

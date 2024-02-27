@@ -166,3 +166,7 @@ Lib
 Scripts
 .python-version
 node_modules
+
+# generated data
+js_finder/js_finder/resources/generated/*
+!js_finder/js_finder/resources/generated/.gitkeep

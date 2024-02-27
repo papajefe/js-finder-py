@@ -35,8 +35,15 @@
       main().then((_) => enableElements());
 
       function enableElements() {
-        notice_footer.innerHTML = 'Original "10 lines" was created by Shao';
+        pyodide
+          .runPythonAsync(
+            "ten_lines.get_data_date()"
+          )
+          .then((date) => {
+            notice_footer.innerHTML = `Original "10 lines" was created by Shao</br>FRLG seed data as of ${date}`;
+          });
         seed_input.disabled = false;
+        frlg_check.disabled = false;
         num_results_input.disabled = false;
       }
 
@@ -44,7 +51,7 @@
         console.log("Submitted Data");
         pyodide
           .runPythonAsync(
-            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value})`
+            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, ${frlg_check.checked ? "True" : "False"})`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -72,6 +79,15 @@
       />
       <label for="num-results"> - Number of results</label>
       <br />
+      <input
+        style="margin: 5px"
+        type="checkbox"
+        name="frlg-check"
+        id="frlg_check"
+        disabled
+      />
+      <label for="frlg-check"> - FRLG Beta</label>
+      <br />
       <button style="margin: 5px" class="button-1" onclick="submitData()">
         Submit
       </button>
@@ -85,6 +101,7 @@
             <th>Advances</th>
             <th>Est. Total Frames</th>
             <th>Est. Total Time</th>
+            <th>Seed Time</th>
           </tr>
         </thead>
         <tbody id="results_table_body"></tbody>

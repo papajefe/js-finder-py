@@ -1,13 +1,16 @@
 """Stadium 2 decoration odds module for pyodide to access"""
 import sys
 
+
 def main():
     """Main function to be run for the stadium2_decoration_odds module"""
     print("Hello from stadium 2 decoration odds!")
     print(f"{sys.version=}")
 
+
 class Stad2LCRNG:
     """Stadium 2 LCRNG"""
+
     def __init__(self, seed: int):
         self.seed = seed
 
@@ -17,6 +20,7 @@ class Stad2LCRNG:
 
     def next_compare(self, value: int):
         return self.next() < value
+
 
 def calculate(tid: int):
     """Calculate odds for each decoration"""
@@ -43,8 +47,10 @@ def calculate(tid: int):
             rand = rng.next(7)
             data[(rand << 1) + bool(tid & (1 << rand + 8))] += 1
 
-                    
     return (
-        "".join(f"<tr><td>{decoration_id}</td><td>{weight}/256</td><td>{weight/2.56:.02f}%</td></tr>" for decoration_id, weight in data.items())
+        "".join(
+            f"<tr><td>{decoration_id}</td><td>{weight}/256</td><td>{weight/2.56:.02f}%</td></tr>"
+            for decoration_id, weight in data.items()
+        )
         or "<tr><td>Invalid Target Seed!</td></tr>"
     )

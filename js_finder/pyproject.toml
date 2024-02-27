@@ -6,6 +6,9 @@ authors = ["lincoln-lm <73306575+Lincoln-LM@users.noreply.github.com>"]
 license = "GPL-3.0-only"
 readme = "README.md"
 packages = [{include = "js_finder"}]
+include = [
+    "js_finder/resources/generated/*"
+]
 
 [tool.poetry.dependencies]
 python = ">= 3.9, < 3.11"

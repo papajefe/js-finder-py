@@ -7,6 +7,8 @@ rm -r dist
 # install build requirements
 pip install -r requirements.txt
 
+python build.py
+
 # build modules
 cd ./js_finder/
 poetry run poetry build --format=wheel

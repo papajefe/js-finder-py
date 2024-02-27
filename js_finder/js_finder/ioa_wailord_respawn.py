@@ -29,6 +29,8 @@ def generate_results(
             results += f"<tr><td>{advance}</td></tr>"
         rng.next()
     return results
+
+
 def main():
     """Main function to be run for the ioa_wailord_respawn module"""
     np.seterr(over="ignore", under="ignore")

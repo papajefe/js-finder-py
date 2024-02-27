@@ -11,6 +11,7 @@ XOROSHIRO_RECOVERY = np.load(
     importlib_resources.files(resources).joinpath("xoroshiro_state_recovery.npy")
 )
 
+
 def find_seed(motions_str: str):
     """Find seed of main rng"""
     if len(motions_str) < 128:
@@ -24,12 +25,9 @@ def find_seed(motions_str: str):
 
     return f"Seed 0: {rng.state[0]:X} Seed 1: {rng.state[1]:X}"
 
+
 def find_advance(
-    motions_str: str,
-    min_advance: int,
-    max_advance: int,
-    seed_0: int,
-    seed_1: int
+    motions_str: str, min_advance: int, max_advance: int, seed_0: int, seed_1: int
 ):
     """Find current advance of main rng"""
     motions = tuple(map(int, motions_str))
@@ -49,16 +47,12 @@ def find_advance(
         rng.next()
     return "Possible Advances:<br>" + "<br>".join(
         f"Before motions: {matching_advance - len(motions)} After motions: {matching_advance}"
-        for matching_advance
-        in matching_advances
+        for matching_advance in matching_advances
     )
 
+
 def find_npc(
-    data: list[list[int]],
-    min_npcs: int,
-    max_npcs: int,
-    seed_0: int,
-    seed_1: int
+    data: list[list[int]], min_npcs: int, max_npcs: int, seed_0: int, seed_1: int
 ):
     """Find npc count of area"""
     possible_npcs = set(range(min_npcs, max_npcs + 1))
@@ -78,6 +72,7 @@ def find_npc(
             if advance != menu_enter:
                 possible_npcs.remove(npc_count)
     return f"Possible NPCs: {possible_npcs}"
+
 
 def main():
     """Main function to be run for the swsh_npc_calibration module"""

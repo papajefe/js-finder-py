@@ -2,6 +2,7 @@
 
 import numpy as np
 
+
 def reduced_row_echelon_form(mat):
     """Compute the reduced row echelon form of a matrix"""
     height, width = mat.shape
@@ -23,6 +24,7 @@ def reduced_row_echelon_form(mat):
             pivot += 1
     return mat, res
 
+
 def mat_inverse(mat, verify_invertible: bool = True):
     """Compute the inverse of a GF(2) matrix via gauss jordan elimination"""
     _, width = mat.shape
@@ -38,6 +40,7 @@ def mat_inverse(mat, verify_invertible: bool = True):
                 mat[j] ^= mat[i]
                 res[j] ^= res[i]
     return res[:width]
+
 
 def inverse_proress(mat):
     """Compute an estimation of the invertibility of the matrix"""

@@ -30,6 +30,7 @@ def mat_state_to_observations(intervals: list[int]) -> np.ndarray:
 
     return observation_mat
 
+
 def solve(intervals: list[int], observations: list[int]) -> list[int]:
     """Solve for the state of the rng based on the given intervals and observations"""
 
@@ -49,20 +50,26 @@ def solve(intervals: list[int], observations: list[int]) -> list[int]:
     rng = Xorshift128(result_seed0, result_seed1, result_seed2, result_seed3)
     rng.advance(sum(intervals[1:]))
 
-    return f"{rng.state[0]:08X} {rng.state[1]:08X} {rng.state[2]:08X} {rng.state[3]:08X}"
+    return (
+        f"{rng.state[0]:08X} {rng.state[1]:08X} {rng.state[2]:08X} {rng.state[3]:08X}"
+    )
+
 
 def progress(intervals: list[int]):
     """Estimate the amount of flips needed to compute the state"""
     interval_count = len(intervals)
     bits_known, total_bits = inverse_proress(mat_state_to_observations(intervals))
 
-    flips_needed = min(round(interval_count/bits_known*total_bits), 140) if bits_known else 140
+    flips_needed = (
+        min(round(interval_count / bits_known * total_bits), 140) if bits_known else 140
+    )
 
     return int(bits_known), (
         f"Flip Count: {interval_count}<br>"
         f"Seed Progress: {bits_known}/{total_bits}<br>"
         f"Estimated Flips Left: {flips_needed - interval_count}"
     )
+
 
 def main():
     """Main function to be run for the bdsp_coin_flip module"""

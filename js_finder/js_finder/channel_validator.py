@@ -58,6 +58,8 @@ def validate_channel(target_seed: int) -> str:
 
     print(validate_jirachi(target_seed))
     return (
-        "".join(f"<tr><td>{seed:08X}</td></tr>" for seed in validate_jirachi(target_seed))
+        "".join(
+            f"<tr><td>{seed:08X}</td></tr>" for seed in validate_jirachi(target_seed)
+        )
         or "<tr><td>Invalid Target Seed!</td></tr>"
     )

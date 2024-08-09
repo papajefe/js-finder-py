@@ -52,7 +52,10 @@ def search(method: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
         for seed in recover_from_ivs(method, ivs):
             go = PokeRNGRMod(seed)
             go.next()
-            pid = (go.next_u16() << np.uint32(16)) | go.next_u16()
+            pid = (go.next_u16() << np.uint32(16))
+            if method == 2:
+                go.next()
+            pid |= go.next_u16()
             shiny = False
             nature = pid % 25
             ability = pid & 1

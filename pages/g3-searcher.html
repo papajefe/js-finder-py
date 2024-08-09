@@ -41,6 +41,8 @@
       main().then((_) => enableElements());
 
       function enableElements() {
+        submit_button.disabled = false;
+        method_select.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
@@ -99,7 +101,7 @@
       <br />
       SPE - <input type="number" min="0" max="31" value="0" id="min_spe"> ~ <input type="number" min="0" max="31" value="31" id="max_spe">
       <br />
-      <button style="margin: 5px" class="button-1" onclick="submitData()">
+      <button style="margin: 5px" class="button-1" onclick="submitData()" id="submit_button" disabled>
         Submit
       </button>
     </div>

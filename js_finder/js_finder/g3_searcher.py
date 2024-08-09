@@ -32,7 +32,10 @@ def recover_from_ivs(method: int, ivs: tuple[int]) -> Iterable[int]:
 
     first = (ivs[0] | (ivs[1] << 5) | (ivs[2] << 10)) << 16
     second = (ivs[5] | (ivs[3] << 5) | (ivs[4] << 10)) << 16
-    diff = ((second - first * mult) & 0xFFFFFFFF) >> 16
+    if method == 4:
+        diff = ((second - (first * mult + add)) & 0xFFFFFFFF) >> 16
+    else:
+        diff = ((second - first * mult) & 0xFFFFFFFF) >> 16
     start_1 = ((((diff * mod + inc) & 0xFFFFFFFF) >> 16) * pat) % mod
     start_2 = (((((diff ^ 0x8000) * mod + inc) & 0xFFFFFFFF) >> 16) * pat) % mod
 
@@ -51,11 +54,11 @@ def search(method: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
     ):
         for seed in recover_from_ivs(method, ivs):
             go = PokeRNGRMod(seed)
-            go.next()
             pid = (go.next_u16() << np.uint32(16))
             if method == 2:
                 go.next()
             pid |= go.next_u16()
+            seed = go.next()
             shiny = False
             nature = pid % 25
             ability = pid & 1

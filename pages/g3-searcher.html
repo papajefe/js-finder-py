@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+      .frlg-table tr > *:nth-child(1) {
+        display: none;
+      }
+      .rse-table tr > *:nth-child(7) {
+        display: none;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let pyodide;
+      async function main() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy");
+        await pyodide.loadPackage("typing-extensions");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+        );
+        await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from js_finder import g3_searcher
+          g3_searcher.main()
+        `);
+      }
+      main().then((_) => enableElements());
+
+      function enableElements() {
+        notice_footer.innerHTML = "Heavily based on PokeFinder";
+      }
+
+      function submitData() {
+        console.log("Submitted Data");
+        pyodide
+          .runPythonAsync(
+            `g3_searcher.search(
+                ${method_select.value},
+                (
+                  ${min_hp.value},
+                  ${min_atk.value},
+                  ${min_def.value},
+                  ${min_spa.value},
+                  ${min_spd.value},
+                  ${min_spe.value},
+                ),
+                (
+                  ${max_hp.value},
+                  ${max_atk.value},
+                  ${max_def.value},
+                  ${max_spa.value},
+                  ${max_spd.value},
+                  ${max_spe.value},
+                )
+            )`
+          )
+          .then((results) => {
+            results_table_body.innerHTML = results;
+          });
+      }
+
+    </script>
+    <div name="input-info" class="info">
+      <select
+        style="margin: 5px; width:150px"
+        name="method-select"
+        id="method_select"
+        disabled
+      >
+        <option value="1">Static 1</option>
+        <option value="2">Static 2</option>
+        <option value="4">Static 4</option>
+      </select>
+      <label for="method-select"> - Encounter Method</label>
+      <br />
+      HP - <input type="number" min="0" max="31" value="0" id="min_hp"> ~ <input type="number" min="0" max="31" value="31" id="max_hp">
+      <br />
+      ATK - <input type="number" min="0" max="31" value="0" id="min_atk"> ~ <input type="number" min="0" max="31" value="31" id="max_atk">
+      <br />
+      DEF - <input type="number" min="0" max="31" value="0" id="min_def"> ~ <input type="number" min="0" max="31" value="31" id="max_def">
+      <br />
+      SPA - <input type="number" min="0" max="31" value="0" id="min_spa"> ~ <input type="number" min="0" max="31" value="31" id="max_spa">
+      <br />
+      SPD - <input type="number" min="0" max="31" value="0" id="min_spd"> ~ <input type="number" min="0" max="31" value="31" id="max_spd">
+      <br />
+      SPE - <input type="number" min="0" max="31" value="0" id="min_spe"> ~ <input type="number" min="0" max="31" value="31" id="max_spe">
+      <br />
+      <button style="margin: 5px" class="button-1" onclick="submitData()">
+        Submit
+      </button>
+    </div>
+    <div name="results" id="results_div" class="info">
+      <table name="results-table" id="states" class="rse-table">
+        <thead>
+          <tr>
+            <th>Seed</th>
+            <th>PID</th>
+            <th>Shiny</th>
+            <th>Nature</th>
+            <th>Ability</th>
+            <th>IVs</th>
+          </tr>
+        </thead>
+        <tbody id="results_table_body"></tbody>
+      </table>
+    </div>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

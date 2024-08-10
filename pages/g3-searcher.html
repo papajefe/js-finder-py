@@ -19,6 +19,17 @@
     <link rel="stylesheet" href="./../css/main.css" />
     <link rel="stylesheet" href="./../css/states.css" />
     <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+    <style>
+      label {
+        height: 20px;
+      }
+      .flex-row {
+        display: flex; flex-direction: row;
+      }
+      .flex-col {
+        display: flex; flex-direction: column;
+      }
+    </style>
   </head>
   <body>
     <script type="text/javascript">
@@ -88,19 +99,40 @@
         <option value="4">Static 4</option>
       </select>
       <label for="method-select"> - Encounter Method</label>
-      <br />
-      HP - <input type="number" min="0" max="31" value="0" id="min_hp"> ~ <input type="number" min="0" max="31" value="31" id="max_hp">
-      <br />
-      ATK - <input type="number" min="0" max="31" value="0" id="min_atk"> ~ <input type="number" min="0" max="31" value="31" id="max_atk">
-      <br />
-      DEF - <input type="number" min="0" max="31" value="0" id="min_def"> ~ <input type="number" min="0" max="31" value="31" id="max_def">
-      <br />
-      SPA - <input type="number" min="0" max="31" value="0" id="min_spa"> ~ <input type="number" min="0" max="31" value="31" id="max_spa">
-      <br />
-      SPD - <input type="number" min="0" max="31" value="0" id="min_spd"> ~ <input type="number" min="0" max="31" value="31" id="max_spd">
-      <br />
-      SPE - <input type="number" min="0" max="31" value="0" id="min_spe"> ~ <input type="number" min="0" max="31" value="31" id="max_spe">
-      <br />
+      <div class="flex-row">
+        <div class="flex-col">
+          <label>HP - </label>
+          <label>ATK - </label>
+          <label>DEF - </label>
+          <label>SPA - </label>
+          <label>SPD - </label>
+          <label>SPE - </label>
+        </div>
+        <div class="flex-col">
+          <input type="number" min="0" max="31" value="0" id="min_hp">
+          <input type="number" min="0" max="31" value="0" id="min_atk">
+          <input type="number" min="0" max="31" value="0" id="min_def">
+          <input type="number" min="0" max="31" value="0" id="min_spa">
+          <input type="number" min="0" max="31" value="0" id="min_spd">
+          <input type="number" min="0" max="31" value="0" id="min_spe">
+        </div>
+        <div class="flex-col" style="padding-left: 5px;">
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+        </div>
+        <div style="display: flex; flex-direction: column;">
+          <input type="number" min="0" max="31" value="0" id="max_hp">
+          <input type="number" min="0" max="31" value="0" id="max_atk">
+          <input type="number" min="0" max="31" value="0" id="max_def">
+          <input type="number" min="0" max="31" value="0" id="max_spa">
+          <input type="number" min="0" max="31" value="0" id="max_spd">
+          <input type="number" min="0" max="31" value="0" id="max_spe">
+        </div>
+      </div>
       <button style="margin: 5px" class="button-1" onclick="submitData()" id="submit_button" disabled>
         Submit
       </button>

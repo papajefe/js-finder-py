@@ -46,12 +46,12 @@ def recover_from_ivs(method: int, ivs: tuple[int]) -> Iterable[int]:
             yield seed ^ 0x80000000
 
 def search(
-        method: int,
-        tsv: int,
-        min_ivs: tuple[int],
-        max_ivs: tuple[int],
-        shiny_filter: int,
-    ) -> str:
+    method: int,
+    tsv: int,
+    min_ivs: tuple[int],
+    max_ivs: tuple[int],
+    shiny_filter: int,
+) -> str:
     """Search for RNG states producing the filtered values"""
     rows = ""
     count = 0

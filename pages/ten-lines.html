@@ -51,6 +51,11 @@
         seed_input.disabled = false;
         game_select.disabled = false;
         num_results_input.disabled = false;
+
+        const params = new URLSearchParams(document.location.search);
+        seed_input.value = params.get("seed") || "DEADBEEF"
+        num_results_input.value = params.get("num_results") || "5"
+
         game_select.addEventListener('change', (event) => {
           states.className = event.currentTarget.value == "painting" ? "rse-table" : "frlg-table";
           results_table_body.innerHTML = "";

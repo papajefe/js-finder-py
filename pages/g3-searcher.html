@@ -9,12 +9,6 @@
       * {
         font-family: "Montserrat", sans-serif;
       }
-      .frlg-table tr > *:nth-child(1) {
-        display: none;
-      }
-      .rse-table tr > *:nth-child(7) {
-        display: none;
-      }
     </style>
     <link rel="stylesheet" href="./../css/main.css" />
     <link rel="stylesheet" href="./../css/states.css" />
@@ -24,10 +18,12 @@
         height: 20px;
       }
       .flex-row {
-        display: flex; flex-direction: row;
+        display: flex;
+        flex-direction: row;
       }
       .flex-col {
-        display: flex; flex-direction: column;
+        display: flex;
+        flex-direction: column;
       }
     </style>
   </head>
@@ -54,6 +50,11 @@
       function enableElements() {
         submit_button.disabled = false;
         method_select.disabled = false;
+        tid_input.disabled = false;
+        sid_input.disabled = false;
+        const params = new URLSearchParams(document.location.search);
+        tid_input.value = params.get("tid") || "12345"
+        sid_input.value = params.get("sid") || "54321"
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
@@ -63,6 +64,7 @@
           .runPythonAsync(
             `g3_searcher.search(
                 ${method_select.value},
+                ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
                 (
                   ${min_hp.value},
                   ${min_atk.value},
@@ -85,11 +87,10 @@
             results_table_body.innerHTML = results;
           });
       }
-
     </script>
     <div name="input-info" class="info">
       <select
-        style="margin: 5px; width:150px"
+        style="margin: 5px; width: 150px"
         name="method-select"
         id="method_select"
         disabled
@@ -99,6 +100,29 @@
         <option value="4">Static 4</option>
       </select>
       <label for="method-select"> - Encounter Method</label>
+      <br>
+      <input
+        type="number"
+        min="0"
+        max="65535"
+        value="12345"
+        name="tid-input"
+        id="tid_input"
+        disabled
+      />
+      <label for="tid-input"> - Trainer ID</label>
+      <br>
+      <input
+        type="number"
+        min="0"
+        max="65535"
+        value="54321"
+        name="sid-input"
+        id="sid_input"
+        disabled
+      />
+      <label for="sid-input"> - Secret ID</label>
+      <br>
       <div class="flex-row">
         <div class="flex-col">
           <label>HP - </label>
@@ -109,14 +133,14 @@
           <label>SPE - </label>
         </div>
         <div class="flex-col">
-          <input type="number" min="0" max="31" value="0" id="min_hp">
-          <input type="number" min="0" max="31" value="0" id="min_atk">
-          <input type="number" min="0" max="31" value="0" id="min_def">
-          <input type="number" min="0" max="31" value="0" id="min_spa">
-          <input type="number" min="0" max="31" value="0" id="min_spd">
-          <input type="number" min="0" max="31" value="0" id="min_spe">
+          <input type="number" min="0" max="31" value="0" id="min_hp" />
+          <input type="number" min="0" max="31" value="0" id="min_atk" />
+          <input type="number" min="0" max="31" value="0" id="min_def" />
+          <input type="number" min="0" max="31" value="0" id="min_spa" />
+          <input type="number" min="0" max="31" value="0" id="min_spd" />
+          <input type="number" min="0" max="31" value="0" id="min_spe" />
         </div>
-        <div class="flex-col" style="padding-left: 5px;">
+        <div class="flex-col" style="padding-left: 5px">
           <label>~</label>
           <label>~</label>
           <label>~</label>
@@ -124,21 +148,27 @@
           <label>~</label>
           <label>~</label>
         </div>
-        <div style="display: flex; flex-direction: column;">
-          <input type="number" min="0" max="31" value="31" id="max_hp">
-          <input type="number" min="0" max="31" value="31" id="max_atk">
-          <input type="number" min="0" max="31" value="31" id="max_def">
-          <input type="number" min="0" max="31" value="31" id="max_spa">
-          <input type="number" min="0" max="31" value="31" id="max_spd">
-          <input type="number" min="0" max="31" value="31" id="max_spe">
+        <div style="display: flex; flex-direction: column">
+          <input type="number" min="0" max="31" value="31" id="max_hp" />
+          <input type="number" min="0" max="31" value="31" id="max_atk" />
+          <input type="number" min="0" max="31" value="31" id="max_def" />
+          <input type="number" min="0" max="31" value="31" id="max_spa" />
+          <input type="number" min="0" max="31" value="31" id="max_spd" />
+          <input type="number" min="0" max="31" value="31" id="max_spe" />
         </div>
       </div>
-      <button style="margin: 5px" class="button-1" onclick="submitData()" id="submit_button" disabled>
+      <button
+        style="margin: 5px"
+        class="button-1"
+        onclick="submitData()"
+        id="submit_button"
+        disabled
+      >
         Submit
       </button>
     </div>
     <div name="results" id="results_div" class="info">
-      <table name="results-table" id="states" class="rse-table">
+      <table name="results-table" id="states">
         <thead>
           <tr>
             <th>Seed</th>
@@ -147,6 +177,7 @@
             <th>Nature</th>
             <th>Ability</th>
             <th>IVs</th>
+            <th>10 Lines</th>
           </tr>
         </thead>
         <tbody id="results_table_body"></tbody>

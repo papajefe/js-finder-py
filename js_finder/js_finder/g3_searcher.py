@@ -45,7 +45,7 @@ def recover_from_ivs(method: int, ivs: tuple[int]) -> Iterable[int]:
             yield seed
             yield seed ^ 0x80000000
 
-def search(method: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
+def search(method: int, tsv: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
     """Search for RNG states producing the filtered values"""
     rows = ""
     count = 0
@@ -54,12 +54,15 @@ def search(method: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
     ):
         for seed in recover_from_ivs(method, ivs):
             go = PokeRNGRMod(seed)
-            pid = (go.next_u16() << np.uint32(16))
+            high = go.next_u16()
+            pid = high << np.uint32(16)
             if method == 2:
                 go.next()
-            pid |= go.next_u16()
+            low = go.next_u16()
+            pid |= low
             seed = go.next()
-            shiny = False
+            shiny_value = tsv ^ low ^ high
+            shiny = "Square" if shiny_value == 0 else "Star" if shiny_value < 8 else "No"
             nature = pid % 25
             ability = pid & 1
 
@@ -71,6 +74,12 @@ def search(method: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
                 f"<td>{NATURES_EN[nature]}</td>"
                 f"<td>{ability}</td>"
                 f"<td>{"/".join(map(str, ivs))}</td>"
+                "<td>"
+                    f"<button onclick=\"window.location.href='./ten-lines?seed={seed:X}'\""
+                    "class=\"button-1\">"
+                        "Open in 10 lines"
+                    "</button>"
+                "</td>"
                 "</tr>"
             )
             count += 1

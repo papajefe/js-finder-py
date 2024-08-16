@@ -52,9 +52,10 @@
         method_select.disabled = false;
         tid_input.disabled = false;
         sid_input.disabled = false;
+        shiny_filter_select.disabled = false;
         const params = new URLSearchParams(document.location.search);
-        tid_input.value = params.get("tid") || "12345"
-        sid_input.value = params.get("sid") || "54321"
+        tid_input.value = params.get("tid") || "12345";
+        sid_input.value = params.get("sid") || "54321";
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
@@ -80,7 +81,8 @@
                   ${max_spa.value},
                   ${max_spd.value},
                   ${max_spe.value},
-                )
+                ),
+                ${shiny_filter_select.value}
             )`
           )
           .then((results) => {
@@ -100,7 +102,7 @@
         <option value="4">Static 4</option>
       </select>
       <label for="method-select"> - Encounter Method</label>
-      <br>
+      <br />
       <input
         type="number"
         min="0"
@@ -111,7 +113,7 @@
         disabled
       />
       <label for="tid-input"> - Trainer ID</label>
-      <br>
+      <br />
       <input
         type="number"
         min="0"
@@ -122,7 +124,18 @@
         disabled
       />
       <label for="sid-input"> - Secret ID</label>
-      <br>
+      <br />
+      <select
+        style="margin: 5px; width: 150px"
+        name="shiny-filter-select"
+        id="shiny_filter_select"
+      >
+        <option value="65536">Any</option>
+        <option value="1">Square</option>
+        <option value="8">Star/Square</option>
+      </select>
+      <label for="shiny-filter-select"> - Shiny Filter</label>
+      <br />
       <div class="flex-row">
         <div class="flex-col">
           <label>HP - </label>

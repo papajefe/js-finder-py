@@ -45,7 +45,13 @@ def recover_from_ivs(method: int, ivs: tuple[int]) -> Iterable[int]:
             yield seed
             yield seed ^ 0x80000000
 
-def search(method: int, tsv: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> str:
+def search(
+        method: int,
+        tsv: int,
+        min_ivs: tuple[int],
+        max_ivs: tuple[int],
+        shiny_filter: int,
+    ) -> str:
     """Search for RNG states producing the filtered values"""
     rows = ""
     count = 0
@@ -62,7 +68,8 @@ def search(method: int, tsv: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> s
             pid |= low
             seed = go.next()
             shiny_value = tsv ^ low ^ high
-            shiny = "Square" if shiny_value == 0 else "Star" if shiny_value < 8 else "No"
+            if shiny_value >= shiny_filter:
+                continue
             nature = pid % 25
             ability = pid & 1
 
@@ -70,7 +77,7 @@ def search(method: int, tsv: int, min_ivs: tuple[int], max_ivs: tuple[int]) -> s
                 "<tr>"
                 f"<td>{seed:08X}</td>"
                 f"<td>{pid:08X}</td>"
-                f"<td>{"Yes" if shiny else "No"}</td>"
+                f"<td>{"Square" if shiny_value == 0 else "Star" if shiny_value < 8 else "No"}</td>"
                 f"<td>{NATURES_EN[nature]}</td>"
                 f"<td>{ability}</td>"
                 f"<td>{"/".join(map(str, ivs))}</td>"

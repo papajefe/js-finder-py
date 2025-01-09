@@ -1,10 +1,13 @@
 """Additional setup to be run by build.sh"""
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import csv
 import json
 import requests
+import numpy as np
 
+
+BASE_SEED = 0
 
 FR_ENG_SHEET = "https://docs.google.com/spreadsheets/d/1Mf3F4kTvNEYyDGWKVmMSiar3Fwh1PLzWVXUvGx9YxfA/gviz/tq?tqx=out:csv&sheet=Fire%20Red%20Raw%20Seed%20Data"
 LG_ENG_SHEET = "https://docs.google.com/spreadsheets/d/12TUcXGbLY_bBDfVsgWZKvqrX13U6XAATQZrYnzBKP6Y/gviz/tq?tqx=out:csv&sheet=Leaf%20Green%20Seeds"
@@ -205,5 +208,85 @@ def pull_frlg_seeds():
         json.dump(frlg_seeds, f)
 
 
+# mults/adds for jumping 2^i LCRNG advances
+JUMP_DATA = (
+    # (mult, add)
+    (0x41C64E6D, 0x6073),
+    (0xC2A29A69, 0xE97E7B6A),
+    (0xEE067F11, 0x31B0DDE4),
+    (0xCFDDDF21, 0x67DBB608),
+    (0x5F748241, 0xCBA72510),
+    (0x8B2E1481, 0x1D29AE20),
+    (0x76006901, 0xBA84EC40),
+    (0x1711D201, 0x79F01880),
+    (0xBE67A401, 0x8793100),
+    (0xDDDF4801, 0x6B566200),
+    (0x3FFE9001, 0x803CC400),
+    (0x90FD2001, 0xA6B98800),
+    (0x65FA4001, 0xE6731000),
+    (0xDBF48001, 0x30E62000),
+    (0xF7E90001, 0xF1CC4000),
+    (0xEFD20001, 0x23988000),
+    (0xDFA40001, 0x47310000),
+    (0xBF480001, 0x8E620000),
+    (0x7E900001, 0x1CC40000),
+    (0xFD200001, 0x39880000),
+    (0xFA400001, 0x73100000),
+    (0xF4800001, 0xE6200000),
+    (0xE9000001, 0xCC400000),
+    (0xD2000001, 0x98800000),
+    (0xA4000001, 0x31000000),
+    (0x48000001, 0x62000000),
+    (0x90000001, 0xC4000000),
+    (0x20000001, 0x88000000),
+    (0x40000001, 0x10000000),
+    (0x80000001, 0x20000000),
+    (0x1, 0x40000000),
+    (0x1, 0x80000000),
+)
+
+
+def distance(state0: int, state1: int) -> int:
+    """Efficiently compute the distance from LCRNG state0 -> state1"""
+    mask = 1
+    dist = 0
+
+    for mult, add in JUMP_DATA:
+        if state0 == state1:
+            break
+
+        if (state0 ^ state1) & mask:
+            state0 = (state0 * mult + add) & 0xFFFFFFFF
+            dist += mask
+
+        mask <<= 1
+
+    return dist
+
+
+def build_rtc_seeds():
+    """Build RTC seeds"""
+    rtc_seeds = {}
+    epoch = datetime(year=2000, month=1, day=1)
+    date_time = epoch
+    while date_time.year < 2001:
+        date_time += timedelta(minutes=1)
+        days = (date_time - epoch).days + 1
+        v = 1440 * days + 960 * (date_time.hour // 10) + 60 * (date_time.hour % 10) + 16 * (date_time.minute // 10) + (date_time.minute % 10)
+        seed = (v >> 16) ^ (v & 0xFFFF)
+        rtc_seeds.setdefault(seed, int((date_time - epoch).total_seconds()))
+
+    rtc_data = np.empty((len(rtc_seeds), 3), np.uint32)
+    for i, (seed, seconds) in enumerate(rtc_seeds.items()):
+        # for every initial seed, compute the distance from initial seed -> base seed + the "frames" of rtc required to hit it
+        dist = distance(seed, BASE_SEED)
+        seed_time = seconds * 60
+        rtc_data[i] = (dist + seed_time) & 0xFFFFFFFF, seed_time, seed
+    # sort by "total time"
+    rtc_data = rtc_data[rtc_data[:, 0].argsort()]
+
+    np.save("./js_finder/js_finder/resources/generated/rtc_data.npy", rtc_data)
+
 if __name__ == "__main__":
     pull_frlg_seeds()
+    build_rtc_seeds()

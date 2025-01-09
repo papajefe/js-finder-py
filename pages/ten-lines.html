@@ -57,10 +57,12 @@
         num_results_input.value = params.get("num_results") || "5"
 
         game_select.addEventListener('change', (event) => {
-          states.className = event.currentTarget.value == "painting" ? "rse-table" : "frlg-table";
+          const is_rse = game_select.value == "painting" || game_select.value == "rtc";
+          states.className = is_rse ? "rse-table" : "frlg-table";
           results_table_body.innerHTML = "";
         })
-        states.className = game_select.value == "painting" ? "rse-table" : "frlg-table";
+        const is_rse = game_select.value == "painting" || game_select.value == "rtc";
+        states.className = is_rse ? "rse-table" : "frlg-table";
       }
 
       function submitData() {
@@ -103,6 +105,7 @@
         disabled
       >
         <option value="painting">Painting Seed</option>
+        <option value="rtc">RTC Seeding</option>
         <option value="fr">FireRed (ENG)</option>
         <option value="fr_eu">FireRed (SPA/FRE/ITA/GER)</option>
         <option value="fr_jpn_1_0">FireRed (JPN) (1.0)</option>

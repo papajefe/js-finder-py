@@ -48,3 +48,4 @@ webencodings==0.5.1
 wrapt==1.14.1
 zipp==3.13.0
 requests==2.28.2
+numpy==1.26.4

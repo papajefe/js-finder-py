@@ -272,7 +272,13 @@ def build_rtc_seeds():
     while date_time.year < 2001:
         date_time += timedelta(minutes=1)
         days = (date_time - epoch).days + 1
-        v = 1440 * days + 960 * (date_time.hour // 10) + 60 * (date_time.hour % 10) + 16 * (date_time.minute // 10) + (date_time.minute % 10)
+        v = (
+            1440 * days
+            + 960 * (date_time.hour // 10)
+            + 60 * (date_time.hour % 10)
+            + 16 * (date_time.minute // 10)
+            + (date_time.minute % 10)
+        )
         seed = (v >> 16) ^ (v & 0xFFFF)
         rtc_seeds.setdefault(seed, int((date_time - epoch).total_seconds()))
 
@@ -287,6 +293,19 @@ def build_rtc_seeds():
 
     np.save("./js_finder/js_finder/resources/generated/rtc_data.npy", rtc_data)
 
+
+def build_ten_lines_precalc():
+    """Build ten lines precalc"""
+    data = np.empty((0x10000, 2), np.uint32)
+    for seed in range(0x10000):
+        # for every initial seed, compute the distance from initial seed -> base seed
+        data[seed] = distance(seed, BASE_SEED), seed
+    # sort by distance
+    data = data[data[:, 0].argsort()]
+    np.save("./js_finder/js_finder/resources/generated/ten_lines_precalc.npy", data)
+
+
 if __name__ == "__main__":
     pull_frlg_seeds()
+    build_ten_lines_precalc()
     build_rtc_seeds()

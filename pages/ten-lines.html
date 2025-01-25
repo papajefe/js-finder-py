@@ -41,7 +41,7 @@
           ten_lines.main()
         `);
       }
-      main().then((_) => enableElements());
+      window.onload = () => main().then((_) => enableElements());
 
       function enableElements() {
         pyodide

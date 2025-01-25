@@ -48,7 +48,7 @@
           g3_searcher.main()
         `);
       }
-      main().then((_) => enableElements());
+      window.onload = () => main().then((_) => enableElements());
 
       function enableElements() {
         submit_button.disabled = false;

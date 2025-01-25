@@ -31,6 +31,9 @@
     <script type="text/javascript">
       let pyodide;
       async function main() {
+        const params = new URLSearchParams(document.location.search);
+        document.getElementById("tid_input").value = params.get("tid") || "12345";
+        document.getElementById("sid_input").value = params.get("sid") || "54321";
         pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         await pyodide.loadPackage("numpy");
@@ -53,9 +56,6 @@
         tid_input.disabled = false;
         sid_input.disabled = false;
         shiny_filter_select.disabled = false;
-        const params = new URLSearchParams(document.location.search);
-        tid_input.value = params.get("tid") || "12345";
-        sid_input.value = params.get("sid") || "54321";
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 

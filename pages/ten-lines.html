@@ -24,6 +24,9 @@
     <script type="text/javascript">
       let pyodide;
       async function main() {
+        const params = new URLSearchParams(document.location.search);
+        document.getElementById("seed_input").value = params.get("seed") || "DEADBEEF"
+        document.getElementById("num_results_input").value = params.get("num_results") || "5"
         pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         await pyodide.loadPackage("numpy");
@@ -51,10 +54,6 @@
         seed_input.disabled = false;
         game_select.disabled = false;
         num_results_input.disabled = false;
-
-        const params = new URLSearchParams(document.location.search);
-        seed_input.value = params.get("seed") || "DEADBEEF"
-        num_results_input.value = params.get("num_results") || "5"
 
         game_select.addEventListener('change', (event) => {
           const is_rse = game_select.value == "painting" || game_select.value == "rtc";

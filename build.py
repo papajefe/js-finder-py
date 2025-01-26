@@ -200,6 +200,19 @@ def pull_frlg_seeds():
             add_seed(5, "stereo", "la", "a")
             add_seed(6, "stereo", "help", "a")
 
+    for game, data in frlg_seeds.items():
+        if game == "time_stamp":
+            continue
+        for _sound, data in data.items():
+            for _l, data in data.items():
+                for _button, data in data.items():
+                    data["no"] = dict(sorted(
+                        data["no"].items(), key=lambda x: x[1]
+                    ))
+                    data["yes"] = dict(sorted(
+                        data["yes"].items(), key=lambda x: x[1]
+                    ))
+
     with open(
         "./js_finder/js_finder/resources/generated/frlg_seeds.json",
         "w+",

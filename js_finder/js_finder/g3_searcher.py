@@ -60,10 +60,10 @@ def search(
     ):
         for seed in recover_from_ivs(method, ivs):
             go = PokeRNGRMod(seed)
-            high = go.next_u16()
-            pid = high << np.uint32(16)
             if method == 2:
                 go.next()
+            high = go.next_u16()
+            pid = high << np.uint32(16)
             low = go.next_u16()
             pid |= low
             seed = go.next()

@@ -119,10 +119,10 @@ def pull_frlg_seeds():
 
             def add_seed(col, sound, l, button):
                 seed = int(row[col], 16)
-                eng_lg = frlg_seeds["fr"][sound][l][button]
+                eng_lg = frlg_seeds["lg"][sound][l][button]
                 for held in eng_lg.keys():
                     eng_lg[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = frame
-                eu_lg = frlg_seeds["fr_eu"][sound][l][button]
+                eu_lg = frlg_seeds["lg_eu"][sound][l][button]
                 for held in eu_lg.keys():
                     eu_lg[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = frame
 

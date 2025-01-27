@@ -210,7 +210,7 @@ def run_ten_lines(target_seed: int, num_results: int, game: str) -> str:
             f"<td>{seed:04X}</td>"
             f"<td>{advance}</td>"
             f"<td>{floor(seed_frame + advance)}</td>"
-            f"<td>{datetime.timedelta(seconds=frame_to_ms(seed_frame + advance))//1000}</td>"
+            f"<td>{datetime.timedelta(seconds=frame_to_ms(seed_frame + advance)//1000)}</td>"
             + (
                 f"<td>{frame_to_ms(seed_frame)}ms</td>"
                 if game != "rtc"

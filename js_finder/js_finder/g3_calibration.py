@@ -92,7 +92,7 @@ def check_iter(
 
             rows += (
                 "<tr>"
-                f"<td>{initial_seed:04X} | {frame_to_ms(seed_frame)}</td>"
+                f"<td>{initial_seed:04X} | {frame_to_ms(seed_frame)}ms</td>"
                 f"<td>{advance}</td>"
                 f"<td>{pid:08X}</td>"
                 f"<td>{"Square" if shiny_value == 0 else "Star" if shiny_value < 8 else "No"}</td>"

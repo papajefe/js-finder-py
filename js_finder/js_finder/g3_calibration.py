@@ -59,7 +59,8 @@ def check_iter(
     rows = ""
     count = 0
     for initial_seed, (seed_frame, _idx) in seed_data:
-        rng = PokeRNGMod(int(initial_seed))
+        initial_seed = int(initial_seed)
+        rng = PokeRNGMod(initial_seed)
         rng.advance(advance_min)
         for advance in range(advance_min, advance_max + 1):
             go = PokeRNGMod(rng.seed)

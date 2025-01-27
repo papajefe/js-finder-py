@@ -90,6 +90,7 @@ def check_frlg(
     tsv: int,
     min_ivs: tuple[int],
     max_ivs: tuple[int],
+    nature_filter: int,
     base_seed: int,
     leeway: int,
     game: str,
@@ -110,6 +111,7 @@ def check_frlg(
         tsv,
         min_ivs,
         max_ivs,
+        nature_filter,
         tuple(seed_data.items())[max(idx-leeway, 0):idx+leeway+1],
         advance_min,
         advance_max,
@@ -121,6 +123,7 @@ def check_iter(
     tsv: int,
     min_ivs: tuple[int],
     max_ivs: tuple[int],
+    nature_filter: int,
     seed_data: Iterable[tuple[int, tuple[int, int]]],
     advance_min: int,
     advance_max: int,
@@ -144,6 +147,8 @@ def check_iter(
             # if shiny_value >= shiny_filter:
             #     continue
             nature = pid % 25
+            if nature != nature_filter:
+                continue
             ability = pid & 1
             iv0 = go.next_u16()
             if method == 4:

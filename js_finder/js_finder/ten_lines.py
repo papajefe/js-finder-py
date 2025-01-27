@@ -9,6 +9,7 @@ import json
 from typing import Collection, Iterable
 import numpy as np
 from . import resources
+from .util import frame_to_ms
 
 # mults/adds for jumping 2^i LCRNG advances
 JUMP_DATA = (
@@ -209,9 +210,9 @@ def run_ten_lines(target_seed: int, num_results: int, game: str) -> str:
             f"<td>{seed:04X}</td>"
             f"<td>{advance}</td>"
             f"<td>{floor(seed_frame + advance)}</td>"
-            f"<td>{datetime.timedelta(seconds=floor((seed_frame + advance) / (16777216 / 280896)))}</td>"
+            f"<td>{datetime.timedelta(seconds=frame_to_ms(seed_frame + advance))}</td>"
             + (
-                f"<td>{floor((seed_frame) / (16777216 / 280896) * 1000)}ms</td>"
+                f"<td>{frame_to_ms(seed_frame)}ms</td>"
                 if game != "rtc"
                 else
                 f"<td>{datetime.datetime(year=2000, month=1, day=1)+datetime.timedelta(seconds=seed_frame/60)}"

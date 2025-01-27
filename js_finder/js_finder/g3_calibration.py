@@ -1,6 +1,6 @@
 """G3 Searcher module for pyodide to access"""
 
-from itertools import chain, product
+from .util import frame_to_ms
 import sys
 from typing import Iterable
 import numpy as np
@@ -30,14 +30,17 @@ def check_frlg(
     advance_min: int,
     advance_max: int,
 ):
-    seeds = FRLG_DATA[game][sound][l][button][select]
-    idx = seeds[str(base_seed)][1]
+    seed_data = FRLG_DATA[game][sound][l][button][select]
+    datum = seed_data.get(str(base_seed), None)
+    if datum is None:
+        return "<td>Invalid Target Seed</td>"
+    idx = datum[1]
     return check_iter(
         method,
         tsv,
         min_ivs,
         max_ivs,
-        map(int, tuple(seeds.keys())[max(idx-leeway, 0):idx+leeway+1]),
+        map(int, tuple(seed_data.items())[max(idx-leeway, 0):idx+leeway+1]),
         advance_min,
         advance_max,
     )
@@ -48,14 +51,14 @@ def check_iter(
     tsv: int,
     min_ivs: tuple[int],
     max_ivs: tuple[int],
-    seeds: Iterable[tuple[int, int]],
+    seed_data: Iterable[tuple[int, tuple[int, int]]],
     advance_min: int,
     advance_max: int,
 ) -> str:
     """Search for RNG states producing the filtered values in the provided seed and advance ranges"""
     rows = ""
     count = 0
-    for initial_seed in seeds:
+    for initial_seed, (seed_frame, _idx) in seed_data:
         rng = PokeRNGMod(initial_seed)
         rng.advance(advance_min)
         for advance in range(advance_min, advance_max + 1):
@@ -88,7 +91,8 @@ def check_iter(
 
             rows += (
                 "<tr>"
-                f"<td>{initial_seed:04X} | {advance}</td>"
+                f"<td>{initial_seed:04X} | {frame_to_ms(seed_frame)}</td>"
+                f"<td>{advance}</td>"
                 f"<td>{pid:08X}</td>"
                 f"<td>{"Square" if shiny_value == 0 else "Star" if shiny_value < 8 else "No"}</td>"
                 f"<td>{NATURES_EN[nature]}</td>"

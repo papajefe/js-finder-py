@@ -100,14 +100,14 @@ def filter_frlg(
             for l in ("la", "help", "lr"):
                 for button in ("a", "start") + (("l",) if l == "la" else ()):
                     for select in ("no", "yes"):
-                        frame = FRLG_DATA[game][sound][l][button][select].get(
+                        data = FRLG_DATA[game][sound][l][button][select].get(
                             str(seed), None
                         )
-                        if frame is not None:
+                        if data is not None:
                             yield (
                                 advance,
                                 seed,
-                                frame,
+                                data[0],
                                 f"{sound=}, {l=}, {button=}, {select=}",
                             )
                             i += 1

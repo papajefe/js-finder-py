@@ -38,7 +38,7 @@
         document.getElementById("sound_select").value = params.get("sound") || "mono";
         document.getElementById("l_select").value = params.get("l") || "la";
         document.getElementById("button_select").value = params.get("button") || "a";
-        document.getElementById("select_select").value = params.get("select") || "no";
+        document.getElementById("held_select").value = params.get("select") || "none";
         document.getElementById("target_seed_input").value = params.get("target_seed") || "DEAD";
         document.getElementById("leeway").value = params.get("leeway") || "20";
         document.getElementById("min_advance").value = params.get("min_advance") || "0";
@@ -65,7 +65,7 @@
         sound_select.disabled = false;
         l_select.disabled = false;
         button_select.disabled = false;
-        select_select.disabled = false;
+        held_select.disabled = false;
         target_seed_input.disabled = false;
         leeway.disabled = false;
         min_advance.disabled = false;
@@ -106,7 +106,7 @@
                 "${sound_select.value}",
                 "${l_select.value}",
                 "${button_select.value}",
-                "${select_select.value}",
+                "${held_select.value}",
                 ${min_advance.value},
                 ${max_advance.value}
             )`
@@ -172,14 +172,14 @@
       <br />
       <select
         style="margin: 5px; width:250px"
-        name="select-select"
-        id="select_select"
+        name="held-select"
+        id="held_select"
         disabled
       >
-        <option value="no">No</option>
+        <option value="none">No</option>
         <option value="yes">Yes</option>
       </select>
-      <label for="select-select"> - Select Held</label>
+      <label for="held-select"> - Held Button</label>
       <br />
       <input
         style="margin: 5px"

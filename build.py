@@ -18,15 +18,33 @@ FR_JPN_1_1_SHEET = "https://docs.google.com/spreadsheets/d/1aQeWaZSi1ycSytrNEOwx
 LG_JPN_SHEET = "https://docs.google.com/spreadsheets/d/1LSRVD0_zK6vyd6ettUDfaCFJbm00g451d8s96dqAbA4/gviz/tq?tqx=out:csv&sheet=JPN%20Leaf%20Green%20Seeds"
 
 EU_OFFSETS = {
-    "lr": {"yes": -9, "no": -8},
-    "la": {"yes": 8, "no": -1},
-    "help": {"yes": 7, "no": 0},
+    "lr": {"startup_select": -9, "none": -8},
+    "la": {"startup_select": 8, "none": -1},
+    "help": {"startup_select": 7, "none": 0},
 }
 
-FR_JPN_OFFSETS = {
-    "lr": 0,
-    "la": -1,
-    "help": 7,
+ENG_OFFSETS = {
+    "la": {"startup_select": -1, "startup_a": -8, "blackout_r": -23, "blackout_a": -31, "blackout_l": 2, "blackout_al": -33, "none": 0},
+    "help": {"startup_select": 7, "startup_a": 3, "blackout_r": -23, "blackout_a": -23, "none": 0},
+    "lr": {"startup_select": -1, "startup_a": -18, "blackout_r": -23, "blackout_a": -39, "none": 0},
+}
+
+FR_JPN_1_0_OFFSETS = {
+    "la": {"startup_select": -1, "startup_a": 1, "blackout_r": -10, "blackout_a": -18, "blackout_l": -3, "none": 0},
+    "help": {"startup_select": 7, "startup_a": 3, "blackout_r": -27, "blackout_a": -24, "none": 0},
+    "lr": {"startup_select": 0, "startup_a": -18, "blackout_r": -23, "blackout_a": -40, "none": 0},
+}
+
+FR_JPN_1_1_OFFSETS = {
+    "la": {"startup_select": 10, "startup_a": -9, "blackout_r": -23, "blackout_a": -31, "blackout_l": 6, "none": 0},
+    "help": {"startup_select": -7, "startup_a": -19, "blackout_r": -21, "blackout_a": -29, "none": 0},
+    "lr": {"startup_select": -7, "startup_a": -4, "blackout_r": -29, "blackout_a": -38, "none": 0},
+}
+
+LG_JPN_OFFSETS = {
+    "la": {"startup_select": -1, "startup_a": -9, "blackout_r": -22, "blackout_a": -40, "blackout_l": -7, "none": 0},
+    "help": {"startup_select": -1, "startup_a": -18, "blackout_r": -23, "blackout_a": -31, "none": 0},
+    "lr": {"startup_select": -1, "startup_a": -23, "blackout_r": -23, "blackout_a": -39, "none": 0},
 }
 
 
@@ -39,7 +57,7 @@ def pull_frlg_seeds():
         game: {
             sound: {
                 l: {
-                    button: {select: {} for select in ("yes", "no")}
+                    button: {held: {} for held in (("none", "startup_select") if game in ("fr_eu", "lg_eu") else (("none", "startup_select", "startup_a", "blackout_r", "blackout_a") + (("blackout_l",) + (("blackout_al",) if game in ("fr", "lg") else ()) if l == "la" else ())))}
                     for button in ("a", "start") + (("l",) if l == "la" else ())
                 }
                 for l in ("la", "help", "lr")
@@ -66,18 +84,12 @@ def pull_frlg_seeds():
                 if seed_str and seed_str != "-":
                     seed = int(seed_str, 16)
                     if seed < 0x10000:
-                        frlg_seeds["fr"][sound][l][button]["no"][seed] = (
-                            program_frame / 2
-                        )
-                        frlg_seeds["fr"][sound][l][button]["yes"][
-                            (seed + (7 if l == "help" else -1)) & 0xFFFF
-                        ] = (program_frame / 2)
-                        frlg_seeds["fr_eu"][sound][l][button]["no"][
-                            seed + EU_OFFSETS[l]["no"]
-                        ] = (program_frame / 2)
-                        frlg_seeds["fr_eu"][sound][l][button]["yes"][
-                            seed + EU_OFFSETS[l]["yes"]
-                        ] = (program_frame / 2)
+                        eng_fr = frlg_seeds["fr"][sound][l][button]
+                        for held in eng_fr.keys():
+                            eng_fr[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = program_frame / 2
+                        eu_fr = frlg_seeds["fr_eu"][sound][l][button]
+                        for held in eu_fr.keys():
+                            eu_fr[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = program_frame / 2
 
             add_seed(3, "stereo", "la", "a")
             add_seed(7, "stereo", "help", "a")
@@ -107,16 +119,12 @@ def pull_frlg_seeds():
 
             def add_seed(col, sound, l, button):
                 seed = int(row[col], 16)
-                frlg_seeds["lg"][sound][l][button]["no"][seed] = frame
-                frlg_seeds["lg"][sound][l][button]["yes"][
-                    (seed + (7 if l == "help" else -1)) & 0xFFFF
-                ] = frame
-                frlg_seeds["lg_eu"][sound][l][button]["no"][
-                    (seed + EU_OFFSETS[l]["no"]) & 0xFFFF
-                ] = frame
-                frlg_seeds["lg_eu"][sound][l][button]["yes"][
-                    (seed + EU_OFFSETS[l]["yes"]) & 0xFFFF
-                ] = frame
+                eng_lg = frlg_seeds["fr"][sound][l][button]
+                for held in eng_lg.keys():
+                    eng_lg[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = frame
+                eu_lg = frlg_seeds["fr_eu"][sound][l][button]
+                for held in eu_lg.keys():
+                    eu_lg[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = frame
 
             add_seed(3, "mono", "lr", "a")
             add_seed(4, "mono", "la", "a")
@@ -139,10 +147,9 @@ def pull_frlg_seeds():
             def add_seed(col, sound, l, button):
                 if row[col]:
                     seed = int(row[col], 16)
-                    frlg_seeds["fr_jpn_1_0"][sound][l][button]["no"][seed] = frame
-                    frlg_seeds["fr_jpn_1_0"][sound][l][button]["yes"][
-                        (seed + FR_JPN_OFFSETS[l]) & 0xFFFF
-                    ] = frame
+                    jpn_fr_1_0 = frlg_seeds["fr_jpn_1_0"][sound][l][button]
+                    for held in jpn_fr_1_0.keys():
+                        jpn_fr_1_0[held][(seed + FR_JPN_1_0_OFFSETS[l][held]) & 0xFFFF] = frame
 
             add_seed(1, "mono", "lr", "a")
             add_seed(2, "mono", "la", "a")
@@ -165,7 +172,9 @@ def pull_frlg_seeds():
             def add_seed(col, sound, l, button):
                 if row[col]:
                     seed = int(row[col], 16)
-                    frlg_seeds["fr_jpn_1_1"][sound][l][button]["no"][seed] = frame
+                    jpn_fr_1_1 = frlg_seeds["fr_jpn_1_1"][sound][l][button]
+                    for held in jpn_fr_1_1.keys():
+                        jpn_fr_1_1[held][(seed + FR_JPN_1_1_OFFSETS[l][held]) & 0xFFFF] = frame
 
             add_seed(1, "mono", "lr", "a")
             add_seed(2, "mono", "la", "a")
@@ -188,10 +197,9 @@ def pull_frlg_seeds():
             def add_seed(col, sound, l, button):
                 if row[col]:
                     seed = int(row[col], 16)
-                    frlg_seeds["lg_jpn"][sound][l][button]["no"][seed] = frame
-                    frlg_seeds["lg_jpn"][sound][l][button]["yes"][
-                        (seed - 1) & 0xFFFF
-                    ] = frame
+                    jpn_lg = frlg_seeds["lg_jpn"][sound][l][button]
+                    for held in jpn_lg.keys():
+                        jpn_lg[held][(seed + LG_JPN_OFFSETS[l][held]) & 0xFFFF] = frame
 
             add_seed(1, "mono", "lr", "a")
             add_seed(2, "mono", "la", "a")
@@ -206,14 +214,11 @@ def pull_frlg_seeds():
         for _sound, data in data.items():
             for _l, data in data.items():
                 for _button, data in data.items():
-                    data["no"] = {
-                        seed: (frame, i)
-                        for i, (seed, frame) in enumerate(sorted(data["no"].items(), key=lambda x: x[1]))
-                    }
-                    data["yes"] = {
-                        seed: (frame, i)
-                        for i, (seed, frame) in enumerate(sorted(data["yes"].items(), key=lambda x: x[1]))
-                    }
+                    for held in data.keys():
+                        data[held] = {
+                            seed: (frame, i)
+                            for i, (seed, frame) in enumerate(sorted(data[held].items(), key=lambda x: x[1]))
+                        }
 
     with open(
         "./js_finder/js_finder/resources/generated/frlg_seeds.json",

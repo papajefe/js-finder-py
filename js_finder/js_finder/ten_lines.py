@@ -96,11 +96,11 @@ def filter_frlg(
     while i < result_count:
         data = next(seeds)
         (advance, seed) = data
-        for sound in ("stereo", "mono"):
-            for l in ("la", "help", "lr"):
-                for button in ("a", "start") + (("l",) if l == "la" else ()):
-                    for select in ("no", "yes"):
-                        data = FRLG_DATA[game][sound][l][button][select].get(
+        for sound, data in FRLG_DATA[game].items():
+            for l, data in data.items():
+                for button, data in data.items():
+                    for held, data in data.items():
+                        data = data.get(
                             str(seed), None
                         )
                         if data is not None:
@@ -108,9 +108,11 @@ def filter_frlg(
                                 advance,
                                 seed,
                                 data[0],
-                                f"{sound=}, {l=}, {button=}, {select=}",
+                                f"{sound=}, {l=}, {button=}, {held=}",
                             )
                             i += 1
+                            if i >= result_count:
+                                return
 
 
 def filter_rtc(

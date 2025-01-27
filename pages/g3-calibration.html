@@ -56,6 +56,7 @@
           from js_finder import g3_calibration
           g3_calibration.main()
         `);
+        species_select.innerHTML = await pyodide.runPython("g3_calibration.fetch_species_options()")
       }
       window.onload = () => main().then((_) => enableElements());
 
@@ -73,11 +74,13 @@
         method_select.disabled = false;
         tid_input.disabled = false;
         sid_input.disabled = false;
+        calculate_ivs_button.disabled = false;
         // shiny_filter_select.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
       function submitData() {
+        if (submit_button.disabled) return;
         console.log("Submitted Data");
         pyodide
           .runPythonAsync(
@@ -114,6 +117,25 @@
           .then((results) => {
             results_table_body.innerHTML = results;
           });
+      }
+      function calculateIVs() {
+        if (calculate_ivs_button.disabled) return;
+        console.log("Calculating IVs");
+        pyodide
+          .runPythonAsync(
+            `g3_calibration.calculate_ivs(
+                ${species_select.value},
+                ${nature_filter_select.value},
+                """${stat_entry.value}"""
+            )`
+        ).then((results) => {
+          const iv_mins = [min_hp, min_atk, min_def, min_spa, min_spd, min_spe];
+          const iv_maxs = [max_hp, max_atk, max_def, max_spa, max_spd, max_spe];
+          for (let i = 0; i < 6; i++) {
+            iv_mins[i].value = results[i].start;
+            iv_maxs[i].value = results[i].stop-1;
+          }
+        })
       }
     </script>
     <div name="input-info" class="info">
@@ -238,17 +260,58 @@
       />
       <label for="sid-input"> - Secret ID</label>
       <br />
-      <!-- <select
+      <select
         style="margin: 5px; width: 150px"
-        name="shiny-filter-select"
-        id="shiny_filter_select"
+        name="nature-filter-select"
+        id="nature_filter_select"
       >
-        <option value="65536">Any</option>
-        <option value="1">Square</option>
-        <option value="8">Star/Square</option>
+        <option value="0">Hardy</option>
+        <option value="1">Lonely</option>
+        <option value="2">Brave</option>
+        <option value="3">Adamant</option>
+        <option value="4">Naughty</option>
+        <option value="5">Bold</option>
+        <option value="6">Docile</option>
+        <option value="7">Relaxed</option>
+        <option value="8">Impish</option>
+        <option value="9">Lax</option>
+        <option value="10">Timid</option>
+        <option value="11">Hasty</option>
+        <option value="12">Serious</option>
+        <option value="13">Jolly</option>
+        <option value="14">Naive</option>
+        <option value="15">Modest</option>
+        <option value="16">Mild</option>
+        <option value="17">Quiet</option>
+        <option value="18">Bashful</option>
+        <option value="19">Rash</option>
+        <option value="20">Calm</option>
+        <option value="21">Gentle</option>
+        <option value="22">Sassy</option>
+        <option value="23">Careful</option>
+        <option value="24">Quirky</option>
       </select>
-      <label for="shiny-filter-select"> - Shiny Filter</label> -->
+      <label for="nature-filter-select"> - Nature Filter</label>
       <br />
+      <select
+        style="margin: 5px; width: 150px"
+        name="species-select"
+        id="species_select"
+      ></select>
+      <label for="species-select"> - IV Calculator Species</label>
+      <br />
+      <textarea name="stat-entry" id="stat_entry"></textarea>
+      <label for="stat-entry"> - IV Calculator Stat Entry</label>
+      <br />
+      <button
+        style="margin: 5px"
+        class="button-1"
+        onclick="calculateIVs()"
+        id="calculate_ivs_button"
+        disabled
+      >
+        Calculate IVs
+      </button>
       <div class="flex-row">
         <div class="flex-col">
           <label>HP - </label>

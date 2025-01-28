@@ -65,7 +65,8 @@
           .runPythonAsync(
             `g3_searcher.search(
                 ${method_select.value},
-                ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
+                ${parseInt(tid_input.value)},
+                ${parseInt(sid_input.value)},
                 (
                   ${min_hp.value},
                   ${min_atk.value},

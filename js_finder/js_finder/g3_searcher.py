@@ -47,7 +47,8 @@ def recover_from_ivs(method: int, ivs: tuple[int]) -> Iterable[int]:
 
 def search(
     method: int,
-    tsv: int,
+    tid: int,
+    sid: int,
     min_ivs: tuple[int],
     max_ivs: tuple[int],
     shiny_filter: int,
@@ -67,7 +68,7 @@ def search(
             low = go.next_u16()
             pid |= low
             seed = go.next()
-            shiny_value = tsv ^ low ^ high
+            shiny_value = tid ^ sid ^ low ^ high
             if shiny_value >= shiny_filter:
                 continue
             nature = pid % 25
@@ -82,7 +83,7 @@ def search(
                 f"<td>{ability}</td>"
                 f"<td>{"/".join(map(str, ivs))}</td>"
                 "<td>"
-                    f"<button onclick=\"window.location.href='./ten-lines?seed={seed:X}'\""
+                    f"<button onclick=\"window.open('./ten-lines?seed={seed:X}&tid={tid}&sid={sid}', '_blank')\""
                     "class=\"button-1\">"
                         "Open in 10 lines"
                     "</button>"

@@ -6,6 +6,7 @@ from itertools import cycle
 import sys
 import datetime
 import json
+import gzip
 from typing import Collection, Iterable
 import numpy as np
 from . import resources
@@ -73,9 +74,9 @@ DATA = np.load(importlib_resources.files(resources).joinpath("generated/ten_line
 RTC_DATA = np.load(importlib_resources.files(resources).joinpath("generated/rtc_data.npy"))
 
 
-with open(
-    importlib_resources.files(resources).joinpath("generated/frlg_seeds.json"),
-    "r",
+with gzip.open(
+    importlib_resources.files(resources).joinpath("generated/frlg_seeds.json.gz"),
+    "rt",
     encoding="utf-8",
 ) as frlg_seeds:
     FRLG_DATA = json.load(frlg_seeds)

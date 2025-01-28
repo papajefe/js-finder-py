@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 import csv
 import json
+import gzip
 import requests
 import numpy as np
 
@@ -220,9 +221,9 @@ def pull_frlg_seeds():
                             for i, (seed, frame) in enumerate(sorted(data[held].items(), key=lambda x: x[1]))
                         }
 
-    with open(
-        "./js_finder/js_finder/resources/generated/frlg_seeds.json",
-        "w+",
+    with gzip.open(
+        "./js_finder/js_finder/resources/generated/frlg_seeds.json.gz",
+        "wt+",
         encoding="utf-8",
     ) as f:
         json.dump(frlg_seeds, f)

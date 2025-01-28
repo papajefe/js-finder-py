@@ -15,6 +15,9 @@
       .rse-table tr > *:nth-child(7) {
         display: none;
       }
+      .rse-table tr > *:nth-child(8) {
+        display: none;
+      }
     </style>
     <link rel="stylesheet" href="./../css/main.css" />
     <link rel="stylesheet" href="./../css/states.css" />
@@ -23,10 +26,20 @@
   <body>
     <script type="text/javascript">
       let pyodide;
+      let forwardedParams = "";
       async function main() {
         const params = new URLSearchParams(document.location.search);
         document.getElementById("seed_input").value = params.get("seed") || "DEADBEEF"
         document.getElementById("num_results_input").value = params.get("num_results") || "5"
+        if (params.get("tid") != null) {
+          forwardedParams += `tid=${params.get("tid")}`
+        }
+        if (params.get("sid") != null) {
+          if (forwardedParams != "") {
+            forwardedParams += "&"
+          }
+          forwardedParams += `sid=${params.get("sid")}`
+        }
         pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         await pyodide.loadPackage("numpy");
@@ -68,7 +81,7 @@
         console.log("Submitted Data");
         pyodide
           .runPythonAsync(
-            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}")`
+            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}", "${forwardedParams}")`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -130,6 +143,7 @@
             <th>Est. Total Time</th>
             <th>Seed Time</th>
             <th>Settings</th>
+            <th>Calibration</th>
           </tr>
         </thead>
         <tbody id="results_table_body"></tbody>

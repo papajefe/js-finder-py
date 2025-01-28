@@ -111,6 +111,7 @@ def filter_frlg(
                                 seed,
                                 data[0],
                                 f"{sound=}, {l=}, {button=}, {held=}",
+                                f"sound={sound}&l={l}&button={button}&held={held}&game={game}",
                             )
                             i += 1
                             if i >= result_count:
@@ -133,7 +134,7 @@ def filter_rtc(
         # the only values that break the algorithm are those with advance + seed_time >= 2^32 and thus can be assumed to be undesireable.
         # filtering these out leaves only the values that are properly sorted
         if int(advance) + int(seed_time) < 0x100000000:
-            yield (advance, seed, seed_time, "")
+            yield (advance, seed, seed_time, "", "")
             i += 1
 
 
@@ -143,7 +144,8 @@ def ten_lines(
     """Efficiently find the closest initial seeds up to result_count results"""
     if game == "painting":
         return (
-            (advance, seed, seed, "")
+            # TODO: painting params when supported in calibration
+            (advance, seed, seed, "", "")
             for (advance, seed) in find_initial_seeds(target_seed, result_count)
         )
     elif game == "rtc":
@@ -200,7 +202,7 @@ def main():
     print(f"{sys.version=}")
 
 
-def run_ten_lines(target_seed: int, num_results: int, game: str) -> str:
+def run_ten_lines(target_seed: int, num_results: int, game: str, params: str = "") -> str:
     """Run ten lines to find origin seeds"""
     # no longer actually 10 lines
 
@@ -220,9 +222,15 @@ def run_ten_lines(target_seed: int, num_results: int, game: str) -> str:
                 f" | {datetime.timedelta(seconds=seed_frame/60)}</td>"
             )
             + f"<td>{info}</td>"
+            "<td>"
+                f"<button onclick=\"window.open('./g3-calibration?target_seed={seed:X}&{params}&{seed_params}', '_blank')\""
+                "class=\"button-1\">"
+                    "Open in calibration"
+                "</button>"
+            "</td>"
             "</tr>"
         )
-        for (advance, seed, seed_frame, info) in ten_lines(
+        for (advance, seed, seed_frame, info, seed_params) in ten_lines(
             target_seed, num_results, game
         )
     )

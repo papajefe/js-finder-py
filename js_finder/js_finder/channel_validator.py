@@ -1,7 +1,7 @@
 """Channel Validator module for pyodide to access"""
 import sys
 import numpy as np
-from numba_pokemon_prngs.lcrng import XDRNGR
+from numba_pokemon_prngs.lcrng import XDRNG, XDRNGR
 
 
 def main():
@@ -11,9 +11,11 @@ def main():
     print(f"{sys.version=}")
 
 
-def validate_jirachi(seed) -> set[int]:
+def validate_jirachi(seed, post_menu: bool = False) -> set[int]:
     """Find all valid menu seeds for a target final seed"""
     valid_seeds = set()
+    if post_menu:
+        seed = do_pre_menu(seed)
     rng = XDRNGR(seed)
     num1 = rng.next_u16()
     num2 = rng.next_u16()
@@ -29,6 +31,18 @@ def validate_jirachi(seed) -> set[int]:
         valid_seeds.update(validate_menu(rng.seed))
     return valid_seeds
 
+def do_pre_menu(seed) -> int:
+    """Advance a seed past the menu sequence"""
+    rng = XDRNG(seed)
+    mask = 0
+    while mask < 14:
+        mask |= 1 << (rng.next_u16() >> 14)
+    rng.advance(4)
+    if rng.next_u16() <= 0x4000 or rng.next_u16() <= 0x547A:
+        rng.advance(1)
+    else:
+        rng.advance(2)
+    return rng.seed
 
 def validate_menu(seed) -> set[int]:
     """Find all valid menu seeds for a target jirachi seed"""
@@ -53,13 +67,12 @@ def validate_menu(seed) -> set[int]:
     return valid_menu_seeds
 
 
-def validate_channel(target_seed: int) -> str:
+def validate_channel(target_seed: int, post_menu: bool = False) -> str:
     """Run validation to find all fully valid seeds for a given channel jirachi seed"""
 
-    print(validate_jirachi(target_seed))
     return (
         "".join(
-            f"<tr><td>{seed:08X}</td></tr>" for seed in validate_jirachi(target_seed)
+            f"<tr><td>{seed:08X}</td></tr>" for seed in validate_jirachi(target_seed, post_menu)
         )
         or "<tr><td>Invalid Target Seed!</td></tr>"
     )

@@ -1,4 +1,4 @@
-"""G3 Searcher module for pyodide to access"""
+"""VC Crystal TID module for pyodide to access"""
 
 import sys
 import numpy as np

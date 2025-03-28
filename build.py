@@ -105,7 +105,7 @@ def pull_frlg_seeds():
             add_seed(43, "stereo", "lr", "start")
             add_seed(47, "stereo", "la", "start")
             add_seed(51, "stereo", "la", "l")
-            add_seed(54, "mono", "la", "l")
+            add_seed(55, "mono", "la", "l")
 
     sheet_txt = requests.get(
         LG_ENG_SHEET,

@@ -182,3 +182,29 @@ def check_iter(
                 return rows + "<tr><td>Results Truncated</td></tr>"
 
     return rows
+## function to create a list of seeds using user-provided parameters.
+def get_seed_list(
+    base_seed: int,
+    leeway: int,
+    game: str,
+    sound: str,
+    l: str,
+    button: str,
+    select: str, 
+):
+    seed_data = FRLG_DATA[game][sound][l][button][select]
+    datum = seed_data.get(str(base_seed), None)
+    if datum is None:
+        return "<td>Invalid Target Seed</td>"
+    idx = datum[1]
+    seed_list = tuple(seed_data.items())[max(idx-leeway, 0):idx+leeway+1]
+    rows = ""
+    for initial_seed, (seed_frame, _idx) in seed_list:
+        initial_seed = int(initial_seed)
+        rows += (
+            "<tr>"
+            f"<td>{initial_seed:04X}</td>"
+            "</tr>"
+        )
+    return rows
+

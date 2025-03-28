@@ -76,7 +76,7 @@
         sid_input.disabled = false;
         calculate_ivs_button.disabled = false;
         // shiny_filter_select.disabled = false;
-        seedlist_button.disabled = false;
+        seed_list_button.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
@@ -140,9 +140,9 @@
         })
       }
 
-      // Function to call the GetSeedList() function from the Python script. Also handles hiding/unhiding of the seed list table via seedlist_button.
-      function GetSeedList() {
-        if (seedlist_button.disabled) return;
+      // Function to call the get_seed_list() function from the Python script. Also handles hiding/unhiding of the seed list table via seed_list_button.
+      function getSeedList() {
+        if (seed_list_button.disabled) return;
         console.log("Getting Seed List");
         pyodide
           .runPythonAsync(
@@ -158,17 +158,15 @@
           )
           .then((results) => {
             seed_table_body.innerHTML = results;
-            }).then(() => {
-            const seedlistDiv = document.getElementById("seedlist_div");
-            const seedlistButton = document.getElementById("seedlist_button");
-            if (seedlistDiv.style.display === "none" || seedlistDiv.style.display === "") {
-              seedlistDiv.style.display = "block";
-              seedlistButton.textContent = "Hide Seeds";
-            } else {
-              seedlistDiv.style.display = "none";
-              seedlistButton.textContent = "Show Seeds";
-            }
-            });
+          }).then(() => {
+              if (seed_list_div.style.display === "none" || seed_list_div.style.display === "") {
+                seed_list_div.style.display = "block";
+                seed_list_button.textContent = "Hide Seeds";
+              } else {
+                seed_list_div.style.display = "none";
+                seed_list_button.textContent = "Show Seeds";
+              }
+          });
       }
     </script>
     <div name="input-info" class="info">
@@ -253,19 +251,18 @@
       <br />
       <input style="margin: 5px" type="number" name="leeway" id="leeway" value=20 disabled />
       <label for="leeway"> - Seed +/-</label>  
-   <!-- Button to call GetSeedList() on click, which will reveal and populate the table below.-->
-          <button
-          style="margin: 1px"
-          class="button-2"
-          onclick="GetSeedList()"
-          id="seedlist_button"
-          disabled>
-          Show Seeds
-        </button>
+      <button
+        style="margin: 1px"
+        class="button-2"
+        onclick="getSeedList()"
+        id="seed_list_button"
+        disabled>
+        Show Seeds
+      </button>
       <br />    
-      <!--Collapsible div containing table that will be hidden and revealed via the script that calls "GetSeedList()"-->
-      <div name="seedlist" id="seedlist_div" class="info" style="width: 7.5%; display: none">
-        <table name="seedlist-table" id="seed_table">
+      <!--Collapsible div containing table that will be hidden and revealed via the script that calls "getSeedList()"-->
+      <div name="seed_list" id="seed_list_div" class="info" style="width: 7.5%; display: none">
+        <table name="seed-list-table" id="seed_table">
           <thead ></thead>
             <tr>
               <th style="border-bottom: 1px solid white;">Seeds</th>

@@ -76,6 +76,7 @@
         sid_input.disabled = false;
         calculate_ivs_button.disabled = false;
         // shiny_filter_select.disabled = false;
+        seedlist_button.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
@@ -137,6 +138,37 @@
             iv_maxs[i].value = results[i].stop-1;
           }
         })
+      }
+
+      // Function to call the GetSeedList() function from the Python script.
+      function GetSeedList() {
+        if (seedlist_button.disabled) return;
+        console.log("Getting Seed List");
+        pyodide
+          .runPythonAsync(
+            `g3_calibration.get_seed_list(
+                0x${target_seed_input.value},
+                ${leeway.value},
+                "${game_select.value}",
+                "${sound_select.value}",
+                "${l_select.value}",
+                "${button_select.value}",
+                "${held_select.value}"
+            )`
+          )
+          .then((results) => {
+            seed_table_body.innerHTML = results;
+            }).then(() => {
+            const seedlistDiv = document.getElementById("seedlist_div");
+            const seedlistButton = document.getElementById("seedlist_button");
+            if (seedlistDiv.style.display === "none" || seedlistDiv.style.display === "") {
+              seedlistDiv.style.display = "block";
+              seedlistButton.textContent = "Hide Seeds";
+            } else {
+              seedlistDiv.style.display = "none";
+              seedlistButton.textContent = "Show Seeds";
+            }
+            });
       }
     </script>
     <div name="input-info" class="info">
@@ -227,6 +259,29 @@
       <input style="margin: 5px" type="number" name="max-advance" id="max_advance" value=100 disabled />
       <label for="max-advance"> - Advance Range</label>
       <br />
+
+   <!-- Button to call GetSeedList() on click, which will reveal and populate the table below.-->
+      <button
+      style="margin: 5px"
+      class="button-1"
+      onclick="GetSeedList()"
+      id="seedlist_button"
+      disabled>
+      Show Seeds
+    </button>
+    <!--Collapsible div that will be hidden and revealed via the script that calls "GetSeedList()"-->
+    <!--Create 2 column table structure. Left column is the signed integer value of leeway associated with the target seed, right column is the seed in hex. Populated by "GetSeedList"-->
+    <div name="seedlist" id="seedlist_div" class="info" style="width: 25%;" style="display: none;">
+      <table name="seedlist-table" id="seed_table">
+        <thead>
+          <tr>
+            <th>Seeds</th>
+          </tr>
+        </thead>
+        <tbody id="seed_table_body"></tbody>
+      </table>
+    </div>
+  </br>
       <select
         style="margin: 5px; width: 150px"
         name="method-select"

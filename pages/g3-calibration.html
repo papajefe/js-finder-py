@@ -39,7 +39,7 @@
         document.getElementById("l_select").value = params.get("l") || "la";
         document.getElementById("button_select").value = params.get("button") || "a";
         document.getElementById("held_select").value = params.get("held") || "none";
-        document.getElementById("target_seed_input").value = params.get("target_seed") || "DEAD";
+        document.getElementById("target_seed_input").value = params.get("target_seed") || "A372";
         document.getElementById("leeway").value = params.get("leeway") || "20";
         document.getElementById("min_advance").value = params.get("min_advance") || "0";
         document.getElementById("max_advance").value = params.get("max_advance") || "500";
@@ -168,12 +168,36 @@
               }
           });
       }
+
+      // Function to call fetch_default_seed() from the Python script, and then update the target_seed input box with the seed at index 50 for those settings.
+      function updateTargetSeed() {
+        if (target_seed_input.disabled) return;
+        console.log("Settings changed, fetching default seed.");
+        pyodide
+          .runPythonAsync(
+        `g3_calibration.fetch_default_seed(
+            "${game_select.value}",
+            "${sound_select.value}",
+            "${l_select.value}",
+            "${button_select.value}",
+            "${held_select.value}"
+        )`
+          ).then((results) => {
+          if (results === "ERROR") {
+            target_seed_input.value = "No seed found.";
+          } else {
+            target_seed_input.value = results.toString(16).toUpperCase();
+          }
+          }
+        )
+      }
     </script>
     <div name="input-info" class="info">
       <select
         style="margin: 5px; width:250px"
         name="game-select"
         id="game_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <!-- <option value="painting">Painting Seed</option>
@@ -192,6 +216,7 @@
         style="margin: 5px; width:250px"
         name="sound-select"
         id="sound_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="mono">Mono</option>
@@ -203,6 +228,7 @@
         style="margin: 5px; width:250px"
         name="l-select"
         id="l_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="la">L=A</option>
@@ -215,6 +241,7 @@
         style="margin: 5px; width:250px"
         name="button-select"
         id="button_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="a">A</option>
@@ -227,6 +254,7 @@
         style="margin: 5px; width:250px"
         name="held-select"
         id="held_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="none">None</option>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+  <body>
+    <div name="rng-info" class="info">
+      <div name="motions-info" class="info">
+        <h4 style="margin: 10px;">Find Seed</h4>
+        <input
+          style="margin: 5px"
+          type="text"
+          name="motions"
+          id="motions_input"
+          disabled
+        />
+        <label for="motions"> - Motions (0 = Physical, 1 = Special)</label>
+        <br>
+        <label style="margin: 5px" id="motions_progress">0/128</label>
+        <br>
+        <div id="seed_results"></div>
+        <br>
+        <button style="margin: 5px" id="submit_button" class="button-1">Find Seed</button>
+        <h4 style="margin: 10px;">Find Advance</h4>
+        <input
+          style="margin: 5px"
+          type="text"
+          name="reident_motions"
+          id="reident_motions_input"
+          disabled
+        />
+        <label for="reident_motions"> - Motions (0 = Physical, 1 = Special)</label>
+        <br>
+        <input
+          style="margin: 5px"
+          type="text"
+          name="reident-seed-0"
+          id="reident_seed_0_input"
+          value="1234567890ABCDEF"
+          disabled
+        />
+        <label for="reident-seed-0"> - Seed 0 (hex)</label>
+        <input
+          style="margin: 5px"
+          type="text"
+          name="reident-seed-1"
+          id="reident_seed_1_input"
+          value="1234567890ABCDEF"
+          disabled
+        />
+        <label for="reident-seed-1"> - Seed 1 (hex)</label>
+        <br>
+        <input
+          style="margin: 5px"
+          type="number"
+          name="min_advance"
+          id="min_advance"
+          value=0
+          disabled
+        />
+        <label for="min_advance" style="margin-left: 10px;"> - </label>
+        <input
+          style="margin: 5px"
+          type="number"
+          name="max_advance"
+          id="max_advance"
+          value=100
+          disabled
+        />
+        <label for="max_advance"> - Advance Range</label>
+        <br>
+        <label style="margin: 5px" id="reident_motions_progress">0/7</label>
+        <br>
+        <button style="margin: 5px" id="reident_submit_button" class="button-1">Find Advance</button>
+        <div id="reident_results"></div>
+        <h4 style="margin: 10px;">Find NPCs</h4>
+        <input
+          style="margin: 5px"
+          type="text"
+          name="npc-seed-0"
+          id="npc_seed_0_input"
+          value="1234567890ABCDEF"
+          disabled
+        />
+        <label for="npc-seed-0"> - Seed 0 (hex)</label>
+        <input
+          style="margin: 5px"
+          type="text"
+          name="npc-seed-1"
+          id="npc_seed_1_input"
+          value="1234567890ABCDEF"
+          disabled
+        />
+        <label for="npc-seed-1"> - Seed 1 (hex)</label>
+        <br>
+        <input
+          style="margin: 5px"
+          type="number"
+          name="min_npcs"
+          id="min_npcs"
+          value=15
+          disabled
+        />
+        <label for="min_npcs" style="margin-left: 10px;"> - </label>
+        <input
+          style="margin: 5px"
+          type="number"
+          name="max_npcs"
+          id="max_npcs"
+          value=35
+          disabled
+        />
+        <label for="max_npcs"> - NPC Range</label>
+        <br>
+        <button style="margin: 5px" id="new_data_point" class="button-1">New Data Point</button>
+        <div id="npc_data"></div>
+        <button style="margin: 5px" id="npc_submit_button" class="button-1">Find NPCs</button>
+        <div id="npc_results"></div>
+      </div>
+    </div>
+    <script src="./swsh-npc-calibration.js"></script>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

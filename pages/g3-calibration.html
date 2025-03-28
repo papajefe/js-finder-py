@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+    <style>
+      label {
+        height: 20px;
+      }
+      .flex-row {
+        display: flex;
+        flex-direction: row;
+      }
+      .flex-col {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let pyodide;
+      async function main() {
+        const params = new URLSearchParams(document.location.search);
+        document.getElementById("tid_input").value = params.get("tid") || "12345";
+        document.getElementById("sid_input").value = params.get("sid") || "54321";
+        document.getElementById("game_select").value = params.get("game") || "fr";
+        document.getElementById("sound_select").value = params.get("sound") || "mono";
+        document.getElementById("l_select").value = params.get("l") || "la";
+        document.getElementById("button_select").value = params.get("button") || "a";
+        document.getElementById("held_select").value = params.get("held") || "none";
+        document.getElementById("target_seed_input").value = params.get("target_seed") || "DEAD";
+        document.getElementById("leeway").value = params.get("leeway") || "20";
+        document.getElementById("min_advance").value = params.get("min_advance") || "0";
+        document.getElementById("max_advance").value = params.get("max_advance") || "500";
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy");
+        await pyodide.loadPackage("typing-extensions");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+        );
+        await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from js_finder import g3_calibration
+          g3_calibration.main()
+        `);
+        species_select.innerHTML = await pyodide.runPython("g3_calibration.fetch_species_options()")
+      }
+      window.onload = () => main().then((_) => enableElements());
+
+      function enableElements() {
+        submit_button.disabled = false;
+        game_select.disabled = false;
+        sound_select.disabled = false;
+        l_select.disabled = false;
+        button_select.disabled = false;
+        held_select.disabled = false;
+        target_seed_input.disabled = false;
+        leeway.disabled = false;
+        min_advance.disabled = false;
+        max_advance.disabled = false;
+        method_select.disabled = false;
+        tid_input.disabled = false;
+        sid_input.disabled = false;
+        calculate_ivs_button.disabled = false;
+        // shiny_filter_select.disabled = false;
+        seedlist_button.disabled = false;
+        notice_footer.innerHTML = "Heavily based on PokeFinder";
+      }
+
+      function submitData() {
+        if (submit_button.disabled) return;
+        console.log("Submitted Data");
+        pyodide
+          .runPythonAsync(
+            `g3_calibration.check_frlg(
+                ${method_select.value},
+                ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
+                (
+                  ${min_hp.value},
+                  ${min_atk.value},
+                  ${min_def.value},
+                  ${min_spa.value},
+                  ${min_spd.value},
+                  ${min_spe.value},
+                ),
+                (
+                  ${max_hp.value},
+                  ${max_atk.value},
+                  ${max_def.value},
+                  ${max_spa.value},
+                  ${max_spd.value},
+                  ${max_spe.value},
+                ),
+                ${nature_filter_select.value},
+                0x${target_seed_input.value},
+                ${leeway.value},
+                "${game_select.value}",
+                "${sound_select.value}",
+                "${l_select.value}",
+                "${button_select.value}",
+                "${held_select.value}",
+                ${min_advance.value},
+                ${max_advance.value}
+            )`
+          )
+          .then((results) => {
+            results_table_body.innerHTML = results;
+          });
+      }
+      function calculateIVs() {
+        if (calculate_ivs_button.disabled) return;
+        console.log("Calculating IVs");
+        pyodide
+          .runPythonAsync(
+            `g3_calibration.calculate_ivs(
+                ${species_select.value},
+                ${nature_filter_select.value},
+                """${stat_entry.value}"""
+            )`
+        ).then((results) => {
+          const iv_mins = [min_hp, min_atk, min_def, min_spa, min_spd, min_spe];
+          const iv_maxs = [max_hp, max_atk, max_def, max_spa, max_spd, max_spe];
+          for (let i = 0; i < 6; i++) {
+            iv_mins[i].value = results[i].start;
+            iv_maxs[i].value = results[i].stop-1;
+          }
+        })
+      }
+
+      // Function to call the GetSeedList() function from the Python script.
+      function GetSeedList() {
+        if (seedlist_button.disabled) return;
+        console.log("Getting Seed List");
+        pyodide
+          .runPythonAsync(
+            `g3_calibration.get_seed_list(
+                0x${target_seed_input.value},
+                ${leeway.value},
+                "${game_select.value}",
+                "${sound_select.value}",
+                "${l_select.value}",
+                "${button_select.value}",
+                "${held_select.value}"
+            )`
+          )
+          .then((results) => {
+            seed_table_body.innerHTML = results;
+            }).then(() => {
+            const seedlistDiv = document.getElementById("seedlist_div");
+            const seedlistButton = document.getElementById("seedlist_button");
+            if (seedlistDiv.style.display === "none" || seedlistDiv.style.display === "") {
+              seedlistDiv.style.display = "block";
+              seedlistButton.textContent = "Hide Seeds";
+            } else {
+              seedlistDiv.style.display = "none";
+              seedlistButton.textContent = "Show Seeds";
+            }
+            });
+      }
+    </script>
+    <div name="input-info" class="info">
+      <select
+        style="margin: 5px; width:250px"
+        name="game-select"
+        id="game_select"
+        disabled
+      >
+        <!-- <option value="painting">Painting Seed</option>
+        <option value="rtc">RTC Seeding</option> -->
+        <option value="fr">FireRed (ENG)</option>
+        <option value="fr_eu">FireRed (SPA/FRE/ITA/GER)</option>
+        <option value="fr_jpn_1_0">FireRed (JPN) (1.0)</option>
+        <option value="fr_jpn_1_1">FireRed (JPN) (1.1)</option>
+        <option value="lg">LeafGreen (ENG)</option>
+        <option value="lg_eu">LeafGreen (SPA/FRE/ITA/GER)</option>
+        <option value="lg_jpn">LeafGreen (JPN)</option>
+      </select>
+      <label for="game-select"> - Game</label>
+      <br />
+      <select
+        style="margin: 5px; width:250px"
+        name="sound-select"
+        id="sound_select"
+        disabled
+      >
+        <option value="mono">Mono</option>
+        <option value="stereo">Stereo</option>
+      </select>
+      <label for="sound-select"> - Sound</label>
+      <br />
+      <select
+        style="margin: 5px; width:250px"
+        name="l-select"
+        id="l_select"
+        disabled
+      >
+        <option value="la">L=A</option>
+        <option value="help">Help</option>
+        <option value="lr">LR</option>
+      </select>
+      <label for="l-select"> - L</label>
+      <br />
+      <select
+        style="margin: 5px; width:250px"
+        name="button-select"
+        id="button_select"
+        disabled
+      >
+        <option value="a">A</option>
+        <option value="start">Start</option>
+        <option value="l">L (L=A)</option>
+      </select>
+      <label for="button-select"> - A Button</label>
+      <br />
+      <select
+        style="margin: 5px; width:250px"
+        name="held-select"
+        id="held_select"
+        disabled
+      >
+        <option value="none">None</option>
+        <option value="startup_select">Startup Select</option>
+        <option value="startup_a">Startup A</option>
+        <option value="blackout_r">Blackout R</option>
+        <option value="blackout_a">Blackout A</option>
+        <option value="blackout_l">Blackout L</option>
+        <option value="blackout_al">Blackout A+L</option>
+      </select>
+      <label for="held-select"> - Held Button</label>
+      <br />
+      <input
+        style="margin: 5px"
+        type="text"
+        name="target-seed"
+        id="target_seed_input"
+        value="DEAD"
+        disabled
+      />
+      <label for="target-seed"> - Target Seed (hex)</label>
+      <br />
+      <input style="margin: 5px" type="number" name="leeway" id="leeway" value=20 disabled />
+      <label for="leeway"> - Seed +/-</label>
+      <br />
+      <input style="margin: 5px" type="number" name="min-advance" id="min_advance" value=0 disabled />
+      <label for="min-advance" style="margin-left: 10px;"> - </label>
+      <input style="margin: 5px" type="number" name="max-advance" id="max_advance" value=100 disabled />
+      <label for="max-advance"> - Advance Range</label>
+      <br />
+
+   <!-- Button to call GetSeedList() on click, which will reveal and populate the table below.-->
+      <button
+      style="margin: 5px"
+      class="button-1"
+      onclick="GetSeedList()"
+      id="seedlist_button"
+      disabled>
+      Show Seeds
+    </button>
+    <!--Collapsible div that will be hidden and revealed via the script that calls "GetSeedList()"-->
+    <!--Create 2 column table structure. Left column is the signed integer value of leeway associated with the target seed, right column is the seed in hex. Populated by "GetSeedList"-->
+    <div name="seedlist" id="seedlist_div" class="info" style="width: 25%;" style="display: none;">
+      <table name="seedlist-table" id="seed_table">
+        <thead>
+          <tr>
+            <th>Seeds</th>
+          </tr>
+        </thead>
+        <tbody id="seed_table_body"></tbody>
+      </table>
+    </div>
+  </br>
+      <select
+        style="margin: 5px; width: 150px"
+        name="method-select"
+        id="method_select"
+        disabled
+      >
+        <option value="1">Static 1</option>
+        <option value="2">Static 2</option>
+        <option value="4">Static 4</option>
+      </select>
+      <label for="method-select"> - Encounter Method</label>
+      <br />
+      <input
+        type="number"
+        min="0"
+        max="65535"
+        value="12345"
+        name="tid-input"
+        id="tid_input"
+        disabled
+      />
+      <label for="tid-input"> - Trainer ID</label>
+      <br />
+      <input
+        type="number"
+        min="0"
+        max="65535"
+        value="54321"
+        name="sid-input"
+        id="sid_input"
+        disabled
+      />
+      <label for="sid-input"> - Secret ID</label>
+      <br />
+      <select
+        style="margin: 5px; width: 150px"
+        name="nature-filter-select"
+        id="nature_filter_select"
+      >
+        <option value="0">Hardy</option>
+        <option value="1">Lonely</option>
+        <option value="2">Brave</option>
+        <option value="3">Adamant</option>
+        <option value="4">Naughty</option>
+        <option value="5">Bold</option>
+        <option value="6">Docile</option>
+        <option value="7">Relaxed</option>
+        <option value="8">Impish</option>
+        <option value="9">Lax</option>
+        <option value="10">Timid</option>
+        <option value="11">Hasty</option>
+        <option value="12">Serious</option>
+        <option value="13">Jolly</option>
+        <option value="14">Naive</option>
+        <option value="15">Modest</option>
+        <option value="16">Mild</option>
+        <option value="17">Quiet</option>
+        <option value="18">Bashful</option>
+        <option value="19">Rash</option>
+        <option value="20">Calm</option>
+        <option value="21">Gentle</option>
+        <option value="22">Sassy</option>
+        <option value="23">Careful</option>
+        <option value="24">Quirky</option>
+      </select>
+      <label for="nature-filter-select"> - Nature Filter</label>
+      <br />
+      <select
+        style="margin: 5px; width: 150px"
+        name="species-select"
+        id="species_select"
+      ></select>
+      <label for="species-select"> - IV Calculator Species</label>
+      <br />
+      <textarea name="stat-entry" id="stat_entry"></textarea>
+      <label for="stat-entry"> - IV Calculator Stat Entry</label>
+      <br />
+      <button
+        style="margin: 5px"
+        class="button-1"
+        onclick="calculateIVs()"
+        id="calculate_ivs_button"
+        disabled
+      >
+        Calculate IVs
+      </button>
+      <div class="flex-row">
+        <div class="flex-col">
+          <label>HP - </label>
+          <label>ATK - </label>
+          <label>DEF - </label>
+          <label>SPA - </label>
+          <label>SPD - </label>
+          <label>SPE - </label>
+        </div>
+        <div class="flex-col">
+          <input type="number" min="0" max="31" value="0" id="min_hp" />
+          <input type="number" min="0" max="31" value="0" id="min_atk" />
+          <input type="number" min="0" max="31" value="0" id="min_def" />
+          <input type="number" min="0" max="31" value="0" id="min_spa" />
+          <input type="number" min="0" max="31" value="0" id="min_spd" />
+          <input type="number" min="0" max="31" value="0" id="min_spe" />
+        </div>
+        <div class="flex-col" style="padding-left: 5px">
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+          <label>~</label>
+        </div>
+        <div style="display: flex; flex-direction: column">
+          <input type="number" min="0" max="31" value="31" id="max_hp" />
+          <input type="number" min="0" max="31" value="31" id="max_atk" />
+          <input type="number" min="0" max="31" value="31" id="max_def" />
+          <input type="number" min="0" max="31" value="31" id="max_spa" />
+          <input type="number" min="0" max="31" value="31" id="max_spd" />
+          <input type="number" min="0" max="31" value="31" id="max_spe" />
+        </div>
+      </div>
+      <button
+        style="margin: 5px"
+        class="button-1"
+        onclick="submitData()"
+        id="submit_button"
+        disabled
+      >
+        Submit
+      </button>
+    </div>
+    <div name="results" id="results_div" class="info">
+      <table name="results-table" id="states">
+        <thead>
+          <tr>
+            <th>Seed</th>
+            <th>Advance</th>
+            <th>PID</th>
+            <th>Shiny</th>
+            <th>Nature</th>
+            <th>Ability</th>
+            <th>IVs</th>
+          </tr>
+        </thead>
+        <tbody id="results_table_body"></tbody>
+      </table>
+    </div>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

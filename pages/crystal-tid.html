@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+    <style>
+      label {
+        height: 20px;
+      }
+      .flex-row {
+        display: flex;
+        flex-direction: row;
+      }
+      .flex-col {
+        display: flex;
+        flex-direction: column;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let pyodide;
+      async function main() {
+        const params = new URLSearchParams(document.location.search);
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy");
+        await pyodide.loadPackage("typing-extensions");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+        );
+        await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from js_finder import crystal_tid
+          crystal_tid.main()
+        `);
+      }
+      window.onload = () => main().then((_) => enableElements());
+
+      function enableElements() {
+        submit_button.disabled = false;
+        tid_search_input.disabled = false;
+        inaccuracy_leeway.disabled = false;
+        min_vframe.disabled = false;
+        max_vframe.disabled = false;
+        min_reopen.disabled = false;
+        max_reopen.disabled = false;
+        notice_footer.innerHTML = "Heavily based on <a href='https://github.com/zaksabeast/VC-RNG-Tool/'>VC-RNG-Tool</a>";
+      }
+
+      function submitData() {
+        console.log("Submitted Data");
+        pyodide
+          .runPythonAsync(
+            `crystal_tid.search(
+                ${tid_search_input.value},
+                ${inaccuracy_leeway.checked ? 1 : 0},
+                ${min_vframe.value},
+                ${max_vframe.value},
+                ${min_reopen.value},
+                ${max_reopen.value}
+            )`
+          )
+          .then((results) => {
+            results_table_body.innerHTML = results;
+          });
+      }
+    </script>
+    <div name="input-info" class="info">
+      <input
+        type="number"
+        min="0"
+        max="65535"
+        value="12345"
+        name="tid-search-input"
+        id="tid_search_input"
+        disabled
+      />
+      <label for="tid-search-input"> - Trainer ID Filter</label>
+      <br />
+      <input
+        style="margin: 5px"
+        type="checkbox"
+        name="inaccuracy-leeway"
+        id="inaccuracy_leeway"
+        disabled
+      />
+      <label for="inaccuracy-leeway"> - Inaccuracy Leeway</label>
+      <br />
+      <input
+        style="margin: 5px"
+        type="number"
+        name="min-reopen"
+        id="min_reopen"
+        value=0
+        disabled
+      />
+      <label for="min-reopen" style="margin-left: 10px;"> - </label>
+      <input
+        style="margin: 5px"
+        type="number"
+        name="max-reopen"
+        id="max_reopen"
+        value=30
+        disabled
+      />
+      <label for="max-reopen"> - Reopen Range</label>
+      <br />
+      <input
+        style="margin: 5px"
+        type="number"
+        name="min-vframe"
+        id="min_vframe"
+        value=0
+        disabled
+      />
+      <label for="min-reopen" style="margin-left: 10px;"> - </label>
+      <input
+        style="margin: 5px"
+        type="number"
+        name="max-vframe"
+        id="max_vframe"
+        value=50000
+        disabled
+      />
+      <label for="max-vframe"> - Visual Frame Range</label>
+      <br />
+      <button
+        style="margin: 5px"
+        class="button-1"
+        onclick="submitData()"
+        id="submit_button"
+        disabled
+      >
+        Submit
+      </button>
+    </div>
+    <div name="results" id="results_div" class="info">
+      <table name="results-table" id="states">
+        <thead>
+          <tr>
+            <th>TID</th>
+            <th>Reopens</th>
+            <th>Advance</th>
+            <th>Visual Frame</th>
+          </tr>
+        </thead>
+        <tbody id="results_table_body"></tbody>
+      </table>
+    </div>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

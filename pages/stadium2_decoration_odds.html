@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let pyodide;
+      async function main() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy");
+        await pyodide.loadPackage("typing-extensions");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+        );
+        await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from js_finder import stadium2_decoration_odds
+          stadium2_decoration_odds.main()
+        `);
+      }
+      main().then((_) => enableElements());
+
+      function enableElements() {
+        notice_footer.innerHTML = '<a href="https://github.com/Lincoln-LM/stad2/blob/1e3c21be6965243ad8e56df0eee5953c31adf839/src/mystery_gift.c#L120">selectMysteryGiftDecoration decompiled function</a>';
+        tid_input.disabled = false;
+      }
+
+      function submitData() {
+        console.log("Submitted Data");
+        pyodide
+          .runPythonAsync(
+            `stadium2_decoration_odds.calculate(${tid_input.value})`
+          )
+          .then((results) => {
+            results_table_body.innerHTML = results;
+          });
+      }
+    </script>
+    <div name="input-info" class="info">
+      <input
+        style="margin: 5px"
+        type="number"
+        name="tid"
+        id="tid_input"
+        value="0"
+        min="0"
+        max="65535"
+        disabled
+      />
+      <label for="tid"> - Trainer Id</label>
+      <br />
+      <button style="margin: 5px" class="button-1" onclick="submitData()">
+        Submit
+      </button>
+    </div>
+    <div name="results" id="results_div" class="info">
+      <table name="results-table" id="states">
+        <thead>
+          <tr>
+            <th>Decoration</th>
+            <th>Odds (X/256)</th>
+            <th>Odds (%)</th>
+          </tr>
+        </thead>
+        <tbody id="results_table_body"></tbody>
+      </table>
+    </div>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+  <body>
+    <button id="start_button" class="button-1">Start</button>
+    <br>
+    <input type="range" min="0" max="1000" value="0" class="slider" id="timer">
+    <br>
+    <input type="range" min="0" max="1000" value="0" class="slider" id="timer_position">
+    <br>
+    <button id="coin_flip_button" class="button-1">Coin Flip</button>
+    <br>
+    <button id="heads_button" class="button-1" disabled><img src="./heads.png"></button>
+    <button id="tails_button" class="button-1" disabled><img src="./tails.png"></button>
+    <br>
+    <a id="progress_label"></a>
+    <br>
+    <a id="data_label"></a>
+    <script src="./bdsp-coin-flip.js"></script>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

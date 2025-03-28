@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+  <body>
+    <script type="text/javascript">
+      let pyodide;
+      async function main() {
+        pyodide = await loadPyodide();
+        await pyodide.loadPackage("micropip");
+        await pyodide.loadPackage("numpy");
+        await pyodide.loadPackage("typing-extensions");
+        const micropip = pyodide.pyimport("micropip");
+        await micropip.install(
+          "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+        );
+        await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+        await pyodide.runPython(`
+          from js_finder import seed_to_time
+          seed_to_time.main()
+        `);
+      }
+      main();
+
+      function submitData() {
+        let result_p = document.getElementsByName("results")[0];
+        result_p.innerHTML = "Loading ...";
+        console.log("Submitted Data");
+        result_p.innerHTML = pyodide.runPython(
+          `seed_to_time.test_coinflip(0x${
+            document.getElementsByName("seed")[0].value
+          }, '${document.getElementsByName("coinflip")[0].value}')`
+        );
+      }
+    </script>
+    <div name="input-info" class="info">
+      <input style="margin: 5px" type="text" name="seed" />
+      <label for="seed"> - Target Seed (hex)</label>
+      <br />
+      <input style="margin: 5px" type="text" name="coinflip" value="" />
+      <label for="coinflip"> - Coinflip Sequence (1: heads, 0: tails)</label>
+      <br />
+      <button style="margin: 5px" class="button-1" onclick="submitData()">
+        Submit
+      </button>
+    </div>
+    <div name="results" class="info"></div>
+  </body>
+</html>

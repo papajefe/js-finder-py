@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:regular" />
+  <style>
+    * {
+      font-family: "Montserrat", sans-serif;
+    }
+  </style>
+  <link rel="stylesheet" href="./../css/main.css" />
+  <link rel="stylesheet" href="./../css/states.css" />
+</head>
+
+<body>
+  <canvas id="canvas" hidden></canvas>
+  <script type="module">
+    import init, { init_gen4ids, search } from "./wgpu_gen4ids/wgpu_gen4ids.js";
+    init().then(() => { init_gen4ids() });
+    window.search = search;
+  </script>
+  <script type="text/javascript">
+    async function main() {
+      // verify webgpu is accessible
+      try {
+        await navigator.gpu.requestAdapter();
+      } catch (error) {
+        // navigator.gpu is undefined if WebGPU cannot be accessed
+        notice_footer.innerHTML = "Error: WebGPU Unavailable or Inaccessible";
+        throw error;
+      }
+    }
+    window.addEventListener("load", (event) => {
+      main()
+        .then((_) => enableElements())
+        .catch((error) => {
+          notice_footer.innerHTML += "<br />" + error;
+          console.error(error);
+        });
+    });
+
+    function enableElements() {
+      notice_footer.innerHTML = "";
+      tid_input.disabled = false;
+      sid_input.disabled = false;
+      submit_button.disabled = false;
+    }
+
+    async function submitData() {
+      while (states.rows.length > 1) {
+        states.deleteRow(1);
+      }
+      notice_footer.innerHTML = "Processing...";
+      // // split the z dimension into multiple passes to avoid crashing
+      // for (let z_offset = 0; z_offset < 4096; z_offset += 4096 / split) {
+      //   notice_footer.innerHTML = `Processing: ${z_offset}/${4096}`;
+      // }
+      let results = (await search(parseInt(tid_input.value), parseInt(sid_input.value))).split(",");
+      for (let i = 0; i < results.length; i++) {
+        let row = states.insertRow(1);
+        let cell = row.insertCell(0);
+        cell.innerHTML = parseInt(results[i])
+          .toString(16)
+          .padStart(8, "0")
+          .toUpperCase();
+      }
+      notice_footer.innerHTML = "";
+    }
+  </script>
+  <div name="input-info" class="info">
+    <input style="margin: 5px" type="number" name="tid" id="tid_input" value="12345" disabled />
+    <label for="tid"> - TID</label>
+    <br />
+    <input style="margin: 5px" type="number" name="sid" id="sid_input" value="0" disabled />
+    <label for="sid"> - SID</label>
+    <br />
+    <button id="submit_button" style="margin: 5px" class="button-1" onclick="submitData()" disabled>
+      Submit
+    </button>
+  </div>
+  <div name="results" id="results_div" class="info">
+    <table name="results-table" id="states">
+      <thead>
+        <tr>
+          <th>Initial Seed</th>
+        </tr>
+      </thead>
+      <tbody id="results_table_body"></tbody>
+    </table>
+  </div>
+</body>
+<footer id="notice_footer">Loading Page ...</footer>
+
+</html>

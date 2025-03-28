@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:regular" />
+  <style>
+    * {
+      font-family: "Montserrat", sans-serif;
+    }
+  </style>
+  <link rel="stylesheet" href="./../css/main.css" />
+  <link rel="stylesheet" href="./../css/states.css" />
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+</head>
+
+<body>
+  <script type="text/javascript">
+    let pyodide;
+    async function main() {
+      pyodide = await loadPyodide();
+      await pyodide.loadPackage("micropip");
+      await pyodide.loadPackage("numpy");
+      await pyodide.loadPackage("typing-extensions");
+      const micropip = pyodide.pyimport("micropip");
+      await micropip.install(
+        "./../wheels/numba_pokemon_prngs-0.1.0-py3-none-any.whl"
+      );
+      await micropip.install("./../wheels/js_finder-0.1.0-py3-none-any.whl");
+      await pyodide.runPython(`
+          from js_finder import ioa_wailord_respawn
+          ioa_wailord_respawn.main()
+        `);
+    }
+    main().then((_) => enableElements());
+
+    function enableElements() {
+      notice_footer.innerHTML = '<a href="https://twitter.com/Sibuna_Switch/status/1716260714371784939">Twitter Post by Anubis</a>';
+      seed_0_input.disabled = false;
+      seed_1_input.disabled = false;
+      npc_count.disabled = false;
+      min_advance.disabled = false;
+      max_advance.disabled = false;
+    }
+
+    function submitData() {
+      console.log("Submitted Data");
+      pyodide
+        .runPythonAsync(
+          `ioa_wailord_respawn.generate_results(0x${seed_0_input.value}, 0x${seed_1_input.value}, ${npc_count.value}, ${min_advance.value}, ${max_advance.value})`
+        )
+        .then((results) => {
+          results_table_body.innerHTML = results;
+        });
+    }
+  </script>
+
+  <input
+    style="margin: 5px"
+    type="text"
+    name="seed-0"
+    id="seed_0_input"
+    value="1234567890ABCDEF"
+    disabled
+  />
+  <label for="seed-0"> - Seed 0 (hex)</label>
+  <input 
+    style="margin: 5px"
+    type="text"
+    name="seed-1"
+    id="seed_1_input"
+    value="1234567890ABCDEF"
+    disabled
+  />
+  <label for="seed-1"> - Seed 1 (hex)</label>
+  <br>
+  <input style="margin: 5px" type="number" name="npc-count" id="npc_count" value=7 disabled />
+  <label for="max_advance"> - NPC Count</label>
+  <br>
+  <input style="margin: 5px" type="number" name="min-advance" id="min_advance" value=0 disabled />
+  <label for="min-advance" style="margin-left: 10px;"> - </label>
+  <input style="margin: 5px" type="number" name="max-advance" id="max_advance" value=100 disabled />
+  <label for="max-advance"> - Advance Range</label>
+  <br>
+  <br />
+  <button style="margin: 5px" class="button-1" onclick="submitData()">
+    Submit
+  </button>
+  </div>
+  <div name="results" id="results_div" class="info">
+    <table name="results-table" id="states">
+      <thead>
+        <tr>
+          <th>Advance</th>
+        </tr>
+      </thead>
+      <tbody id="results_table_body"></tbody>
+    </table>
+  </div>
+</body>
+<footer id="notice_footer">Loading Page ...</footer>
+
+</html>

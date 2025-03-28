@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BDSP Seed Finder</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+
+  <body>
+    <div style="width: 50%">
+      <button onclick="process()" class="button-1">Start</button> <br />
+      <video style="width: 100%" autoplay="true" id="video" playsinline></video
+      ><br />
+      <label>
+        Upload Eye Image
+        <input
+          type="file"
+          id="eyeUpload"
+          accept="image/*"
+          onchange="eyeUploaded()"
+        />
+      </label>
+      <img id="eye" /> <br />
+      <canvas style="width: 100%" id="tracking_input"></canvas>
+      <canvas style="width: 100%" id="tracking_output"></canvas>
+    </div>
+    <script>
+      async function eyeUploaded() {
+        let file = eyeUpload.files[0];
+        let dataUrl = await new Promise((resolve) => {
+          let reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.readAsDataURL(file);
+        });
+        eye.src = dataUrl;
+      }
+      let pyodide;
+      async function main() {
+        try {
+          pyodide = await loadPyodide();
+          await pyodide.loadPackage("micropip");
+          await pyodide.loadPackage("numpy");
+          await pyodide.loadPackage("typing-extensions");
+          await pyodide.loadPackage("opencv-python");
+          const micropip = pyodide.pyimport("micropip");
+        } catch (err) {
+          alert("Failed to load pyodide!");
+          alert(err);
+          return;
+        }
+
+        if (navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices
+            .getUserMedia({
+              video: {
+                facingMode: "environment",
+              },
+            })
+            .then(function (stream) {
+              video.srcObject = stream;
+            })
+            .catch(function (err) {
+              alert("Failed to grab camera!");
+              alert(err);
+            });
+        }
+        function captureVideo() {
+          tracking_input.width = video.videoWidth;
+          tracking_input.height = video.videoHeight;
+          tracking_input.getContext("2d").drawImage(video, 0, 0);
+          return tracking_input.toDataURL("image/png");
+        }
+        tracking_input.captureVideo = captureVideo;
+      }
+      async function process() {
+        let data_url;
+        try {
+          data_url = pyodide.runPython(
+            `
+              import binascii
+              import cv2
+              import numpy as np
+              from js import tracking_input, tracking_output, eye
+              eye_buffer = np.frombuffer(binascii.a2b_base64(eye.src.split(";base64,")[1]), dtype=np.uint8)
+              eye_buffer = cv2.imdecode(eye_buffer, cv2.IMREAD_COLOR)
+              eye_buffer = cv2.cvtColor(eye_buffer,cv2.COLOR_RGB2GRAY)
+              buffer = np.frombuffer(binascii.a2b_base64(tracking_input.captureVideo().split(";base64,")[1]), dtype=np.uint8)
+              buffer = cv2.imdecode(buffer, cv2.IMREAD_COLOR)
+              buffer = cv2.cvtColor(buffer,cv2.COLOR_RGB2GRAY)
+              res = cv2.matchTemplate(buffer,eye_buffer,cv2.TM_CCOEFF_NORMED)
+              _, match, _, max_loc = cv2.minMaxLoc(res)
+
+              eye_width, eye_height = eye_buffer.shape[::-1]
+              roi_x = roi_y = 0
+
+              max_loc = (max_loc[0] + roi_x, max_loc[1] + roi_y)
+              bottom_right = (max_loc[0] + eye_width, max_loc[1] + eye_height)
+              cv2.rectangle(buffer, max_loc, bottom_right, 255, 2)
+
+              buffer = cv2.imencode('.png', buffer)[1]
+              (b"data:image/png;base64," + binascii.b2a_base64(buffer)).decode("utf-8")
+            `
+          );
+        } catch (err) {
+          alert("Failed to process image!");
+          alert(err);
+          return;
+        }
+        let img = new Image();
+        img.onload = () => {
+          tracking_output.width = video.videoWidth;
+          tracking_output.height = video.videoHeight;
+          tracking_output.getContext("2d").drawImage(img, 0, 0);
+        };
+        img.src = data_url;
+        return setTimeout(process, 100);
+      }
+      main();
+    </script>
+  </body>
+</html>

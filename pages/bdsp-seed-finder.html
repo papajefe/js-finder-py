@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Montserrat:regular"
+    />
+    <style>
+      * {
+        font-family: "Montserrat", sans-serif;
+      }
+    </style>
+    <link rel="stylesheet" href="./../css/main.css" />
+    <link rel="stylesheet" href="./../css/states.css" />
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.2/full/pyodide.js"></script>
+  </head>
+  <body>
+    <button id="refresh_button" class="button-1">Refresh Camera List</button>
+    <select id="select" style="width: 150px"></select>
+    <br />
+    <button id="record_button" class="button-1">Record</button>
+    <br />
+    <video id="video" autoplay playsinline></video>
+    <br />
+    <video id="video_result" controls></video>
+    <br />
+    <button id="blink_button" class="button-1">Blink</button>
+    <button id="calculate_button" class="button-1">Calculate</button>
+    <br />
+    <div id="results"></div>
+    <script src="./bdsp-seed-finder.js"></script>
+  </body>
+  <footer id="notice_footer">Loading Page ...</footer>
+</html>

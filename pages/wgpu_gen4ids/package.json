@@ -1,0 +1,14 @@
+{
+  "name": "wgpu-gen4ids",
+  "version": "0.1.0",
+  "files": [
+    "wgpu_gen4ids_bg.wasm",
+    "wgpu_gen4ids.js",
+    "wgpu_gen4ids.d.ts"
+  ],
+  "module": "wgpu_gen4ids.js",
+  "types": "wgpu_gen4ids.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

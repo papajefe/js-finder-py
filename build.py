@@ -70,7 +70,7 @@ def pull_frlg_seeds():
 
     sheet_txt = requests.get(
         FR_ENG_SHEET,
-        timeout=5,
+        timeout=15,
     ).text
     sheet_csv = csv.reader(sheet_txt.split("\n"))
     for i, row in enumerate(sheet_csv):
@@ -109,7 +109,7 @@ def pull_frlg_seeds():
 
     sheet_txt = requests.get(
         LG_ENG_SHEET,
-        timeout=5,
+        timeout=15,
     ).text
     sheet_csv = csv.reader(sheet_txt.split("\n"))
     for i, row in enumerate(sheet_csv):
@@ -136,7 +136,7 @@ def pull_frlg_seeds():
 
     sheet_txt = requests.get(
         FR_JPN_1_0_SHEET,
-        timeout=5,
+        timeout=15,
     ).text
     sheet_csv = csv.reader(sheet_txt.split("\n"))
     for i, row in enumerate(sheet_csv):
@@ -161,7 +161,7 @@ def pull_frlg_seeds():
 
     sheet_txt = requests.get(
         FR_JPN_1_1_SHEET,
-        timeout=5,
+        timeout=15,
     ).text
     sheet_csv = csv.reader(sheet_txt.split("\n"))
     for i, row in enumerate(sheet_csv):
@@ -186,7 +186,7 @@ def pull_frlg_seeds():
 
     sheet_txt = requests.get(
         LG_JPN_SHEET,
-        timeout=5,
+        timeout=15,
     ).text
     sheet_csv = csv.reader(sheet_txt.split("\n"))
     for i, row in enumerate(sheet_csv):

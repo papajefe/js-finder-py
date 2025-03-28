@@ -140,7 +140,7 @@
         })
       }
 
-      // Function to call the GetSeedList() function from the Python script.
+      // Function to call the GetSeedList() function from the Python script. Also handles hiding/unhiding of the seed list table via seedlist_button.
       function GetSeedList() {
         if (seedlist_button.disabled) return;
         console.log("Getting Seed List");
@@ -252,36 +252,35 @@
       <label for="target-seed"> - Target Seed (hex)</label>
       <br />
       <input style="margin: 5px" type="number" name="leeway" id="leeway" value=20 disabled />
-      <label for="leeway"> - Seed +/-</label>
-      <br />
+      <label for="leeway"> - Seed +/-</label>  
+   <!-- Button to call GetSeedList() on click, which will reveal and populate the table below.-->
+          <button
+          style="margin: 1px"
+          class="button-2"
+          onclick="GetSeedList()"
+          id="seedlist_button"
+          disabled>
+          Show Seeds
+        </button>
+      <br />    
+      <!--Collapsible div containing table that will be hidden and revealed via the script that calls "GetSeedList()"-->
+      <div name="seedlist" id="seedlist_div" class="info" style="width: 7.5%; display: none">
+        <table name="seedlist-table" id="seed_table">
+          <thead ></thead>
+            <tr>
+              <th style="border-bottom: 1px solid white;">Seeds</th>
+            </tr>
+          </thead>
+          <tbody id="seed_table_body" style="font-size: 12px"></tbody>
+        </table>
+      </div>
       <input style="margin: 5px" type="number" name="min-advance" id="min_advance" value=0 disabled />
       <label for="min-advance" style="margin-left: 10px;"> - </label>
       <input style="margin: 5px" type="number" name="max-advance" id="max_advance" value=100 disabled />
       <label for="max-advance"> - Advance Range</label>
       <br />
 
-   <!-- Button to call GetSeedList() on click, which will reveal and populate the table below.-->
-      <button
-      style="margin: 5px"
-      class="button-1"
-      onclick="GetSeedList()"
-      id="seedlist_button"
-      disabled>
-      Show Seeds
-    </button>
-    <!--Collapsible div that will be hidden and revealed via the script that calls "GetSeedList()"-->
-    <!--Create 2 column table structure. Left column is the signed integer value of leeway associated with the target seed, right column is the seed in hex. Populated by "GetSeedList"-->
-    <div name="seedlist" id="seedlist_div" class="info" style="width: 25%;" style="display: none;">
-      <table name="seedlist-table" id="seed_table">
-        <thead>
-          <tr>
-            <th>Seeds</th>
-          </tr>
-        </thead>
-        <tbody id="seed_table_body"></tbody>
-      </table>
-    </div>
-  </br>
+
       <select
         style="margin: 5px; width: 150px"
         name="method-select"

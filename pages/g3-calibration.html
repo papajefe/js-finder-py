@@ -43,6 +43,7 @@
         document.getElementById("leeway").value = params.get("leeway") || "20";
         document.getElementById("min_advance").value = params.get("min_advance") || "0";
         document.getElementById("max_advance").value = params.get("max_advance") || "500";
+        document.getElementById("system_select").value = params.get("system_ms") || "-460"; // Default to GBA offset
         pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         await pyodide.loadPackage("numpy");
@@ -77,6 +78,7 @@
         calculate_ivs_button.disabled = false;
         // shiny_filter_select.disabled = false;
         seed_list_button.disabled = false;
+        system_select.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
       }
 
@@ -113,8 +115,9 @@
                 "${button_select.value}",
                 "${held_select.value}",
                 ${min_advance.value},
-                ${max_advance.value}
-            )`
+                ${max_advance.value},
+                ${system_select.value}
+            )` // New system_select value is provided as a signed integer ms value to be added to frames_to_ms(seed_frame) in the python script.;
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -267,6 +270,20 @@
       </select>
       <label for="held-select"> - Held Button</label>
       <br />
+      <!---Selection Box for System, which contains an offset ms value to be pulled into python script for seed time calculation adjustment.-->
+      <select
+      style="margin: 5px; width:250px"
+      name="system-select"
+      id="system_select"
+      disabled
+    ><!---Selections are passed via URL from Ten Lines as signed int using new param-->
+      <option value=0>GameBoy Player</option>
+      <option value=-460>GBA</option>
+      <option value=527>DS</option>
+      <option value=1332>3DS (open_agb_firm)</option>
+    </select>
+    <label for="system-select"> - System</label>
+    <br />
       <input
         style="margin: 5px"
         type="text"

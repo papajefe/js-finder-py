@@ -79,6 +79,7 @@ def pull_frlg_seeds():
         if row[0]:
             program_frame_str = row[0]
             program_frame = int(program_frame_str)
+            frame = program_frame / 2 - 15
 
             def add_seed(col, sound, l, button):
                 seed_str = row[col]
@@ -87,10 +88,10 @@ def pull_frlg_seeds():
                     if seed < 0x10000:
                         eng_fr = frlg_seeds["fr"][sound][l][button]
                         for held in eng_fr.keys():
-                            eng_fr[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = program_frame / 2
+                            eng_fr[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = frame
                         eu_fr = frlg_seeds["fr_eu"][sound][l][button]
                         for held in eu_fr.keys():
-                            eu_fr[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = program_frame / 2
+                            eu_fr[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = frame
 
             add_seed(3, "stereo", "la", "a")
             add_seed(7, "stereo", "help", "a")
@@ -143,7 +144,7 @@ def pull_frlg_seeds():
         if i == 0:
             continue
         if row[0]:
-            frame = int(row[0])
+            frame = int(row[0]) - 40
 
             def add_seed(col, sound, l, button):
                 if row[col]:
@@ -168,7 +169,7 @@ def pull_frlg_seeds():
         if i < 3:
             continue
         if row[0]:
-            frame = int(row[0])
+            frame = int(row[0]) - 40
 
             def add_seed(col, sound, l, button):
                 if row[col]:
@@ -193,7 +194,7 @@ def pull_frlg_seeds():
         if i < 3:
             continue
         if row[0]:
-            frame = int(row[0])
+            frame = int(row[0]) - 40
 
             def add_seed(col, sound, l, button):
                 if row[col]:

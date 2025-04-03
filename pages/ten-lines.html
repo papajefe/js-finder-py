@@ -18,6 +18,10 @@
       .rse-table tr > *:nth-child(8) {
         display: none;
       }
+      /* define hidden status for cleaner system_select formatting */
+      .hidden {
+        display: none;
+      }
     </style>
     <link rel="stylesheet" href="./../css/main.css" />
     <link rel="stylesheet" href="./../css/states.css" />
@@ -31,6 +35,7 @@
         const params = new URLSearchParams(document.location.search);
         document.getElementById("seed_input").value = params.get("seed") || "DEADBEEF"
         document.getElementById("num_results_input").value = params.get("num_results") || "5"
+        document.getElementById("system_select").value = params.get("system_ms") || "-260"
         if (params.get("tid") != null) {
           forwardedParams += `tid=${params.get("tid")}`
         }
@@ -67,11 +72,17 @@
         seed_input.disabled = false;
         game_select.disabled = false;
         num_results_input.disabled = false;
+        system_select.disabled = false;
 
         game_select.addEventListener('change', (event) => {
           const is_rse = game_select.value == "painting" || game_select.value == "rtc";
           states.className = is_rse ? "rse-table" : "frlg-table";
           results_table_body.innerHTML = "";
+          // Disable and hide system select dropdown, label, and br (i hate html formatting) when Painting or RTC is selected
+          system_select.disabled = is_rse;
+          system_select.hidden = is_rse;
+          system_label.hidden = is_rse;
+          system_br.hidden = is_rse;
         })
         const is_rse = game_select.value == "painting" || game_select.value == "rtc";
         states.className = is_rse ? "rse-table" : "frlg-table";
@@ -81,7 +92,7 @@
         console.log("Submitted Data");
         pyodide
           .runPythonAsync(
-            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}", "${forwardedParams}")`
+            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}", ${system_select.value}, "${forwardedParams}")` // Added system_select.value argument
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -128,6 +139,22 @@
       </select>
       <label for="game-select"> - Game</label>
       <br />
+      <!---Selection Box for System, which contains an offset ms value to be pulled into python script for seed time calculation adjustment.-->
+      <select
+      style="margin: 5px; width:250px"
+      name="system-select"
+      id="system_select"
+      disabled
+      hidden
+    ><!---Selections are passed via URL to G3 Calibration as signed int using new param-->
+      <option value=-260>GBA</option>
+      <option value=200>GameBoy Player</option>
+      <option value=800>DS</option>
+      <option value=1616>3DS (open_agb_firm)</option>
+      </select>
+      <label for="system-select" id="system_label" hidden> - System</label>
+    <!---I promise this is the only way I could remove an annoying gap leftover after hiding...-->
+    <br id="system_br" hidden/>
       <button style="margin: 5px" class="button-1" onclick="submitData()">
         Submit
       </button>

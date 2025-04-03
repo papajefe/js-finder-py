@@ -29,6 +29,9 @@ body {
   position: relative;
   top: 1px;
 }
+.button-1:disabled {
+  display: none;
+}
 .button-2 {
   background-color: var(--btn-bg);
   border-radius: 3px;

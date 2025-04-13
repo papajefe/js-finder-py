@@ -25,6 +25,12 @@
         display: flex;
         flex-direction: column;
       }
+      .static-table tr > *:nth-child(3) {
+        display: none;
+      }
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -39,10 +45,13 @@
         document.getElementById("l_select").value = params.get("l") || "la";
         document.getElementById("button_select").value = params.get("button") || "a";
         document.getElementById("held_select").value = params.get("held") || "none";
-        document.getElementById("target_seed_input").value = params.get("target_seed") || "DEAD";
+        document.getElementById("target_seed_input").value = params.get("target_seed") || "A372";
         document.getElementById("leeway").value = params.get("leeway") || "20";
         document.getElementById("min_advance").value = params.get("min_advance") || "0";
         document.getElementById("max_advance").value = params.get("max_advance") || "500";
+        document.getElementById("system_select").value = params.get("system_ms") || "-260";
+        document.getElementById("encounter_select").value = params.get("enc_type") || "Grass";
+        document.getElementById("nature_filter_select").value = "0";
         pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         await pyodide.loadPackage("numpy");
@@ -75,50 +84,131 @@
         tid_input.disabled = false;
         sid_input.disabled = false;
         calculate_ivs_button.disabled = false;
-        // shiny_filter_select.disabled = false;
+        shiny_filter_select.disabled = false;
         seed_list_button.disabled = false;
+        system_select.disabled = false;
+        encounter_select.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
+        method_select.addEventListener('change', (event) => {
+          const is_wild = [3, 4, 5].includes(method_select.selectedIndex);
+          states.className = is_wild ? "wild-table" : "static-table";
+          encounter_select.disabled = !is_wild;
+          encounter_select.hidden = !is_wild;
+          enc_label.hidden = !is_wild;
+          enc_br.hidden = !is_wild;
+          results_table_body.innerHTML = "";
+        })
+        method_select.dispatchEvent(new Event('change'));
+        nature_filter_select.addEventListener('change', (event) => {
+          const is_any = nature_filter_select.selectedIndex == 0;
+          species_select.hidden = is_any;
+          species_label.hidden = is_any;
+          stat_entry.hidden = is_any;
+          stat_label.hidden = is_any;
+          calculate_ivs_button.disabled = is_any;
+          calcIV_label.hidden = !is_any;
+          iv_filter_br.hidden = !is_any;
+          if (is_any) {
+            min_hp.value = 0;
+            min_atk.value = 0;
+            min_def.value = 0;
+            min_spa.value = 0;
+            min_spd.value = 0;
+            min_spe.value = 0;
+            max_hp.value = 31;
+            max_atk.value = 31;
+            max_def.value = 31;
+            max_spa.value = 31;
+            max_spd.value = 31;
+            max_spe.value = 31;
+          }
+        })
+        nature_filter_select.dispatchEvent(new Event('change'));
       }
 
       function submitData() {
         if (submit_button.disabled) return;
         console.log("Submitted Data");
-        pyodide
-          .runPythonAsync(
-            `g3_calibration.check_frlg(
-                ${method_select.value},
-                ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
-                (
-                  ${min_hp.value},
-                  ${min_atk.value},
-                  ${min_def.value},
-                  ${min_spa.value},
-                  ${min_spd.value},
-                  ${min_spe.value},
-                ),
-                (
-                  ${max_hp.value},
-                  ${max_atk.value},
-                  ${max_def.value},
-                  ${max_spa.value},
-                  ${max_spd.value},
-                  ${max_spe.value},
-                ),
-                ${nature_filter_select.value},
-                0x${target_seed_input.value},
-                ${leeway.value},
-                "${game_select.value}",
-                "${sound_select.value}",
-                "${l_select.value}",
-                "${button_select.value}",
-                "${held_select.value}",
-                ${min_advance.value},
-                ${max_advance.value}
+        const is_wild = [3, 4, 5].includes(method_select.selectedIndex);
+        if (is_wild) {
+          pyodide.runPythonAsync(
+            `g3_calibration.check_frlg_wild(
+              ${method_select.value},
+              ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
+              ${shiny_filter_select.value},
+              (
+                ${min_hp.value},
+                ${min_atk.value},
+                ${min_def.value},
+                ${min_spa.value},
+                ${min_spd.value},
+                ${min_spe.value}
+              ),
+              (
+                ${max_hp.value},
+                ${max_atk.value},
+                ${max_def.value},
+                ${max_spa.value},
+                ${max_spd.value},
+                ${max_spe.value}
+              ),
+              ${nature_filter_select.value},
+              0x${target_seed_input.value},
+              ${leeway.value},
+              "${game_select.value}",
+              "${sound_select.value}",
+              "${l_select.value}",
+              "${button_select.value}",
+              "${held_select.value}",
+              ${min_advance.value},
+              ${max_advance.value},
+              ${system_select.value},
+              "${encounter_select.value}"
             )`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
           });
+        }
+        else {
+          pyodide.runPythonAsync(
+            `g3_calibration.check_frlg(
+              ${method_select.value},
+              ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
+              ${shiny_filter_select.value},
+              (
+                ${min_hp.value},
+                ${min_atk.value},
+                ${min_def.value},
+                ${min_spa.value},
+                ${min_spd.value},
+                ${min_spe.value}
+              ),
+              (
+                ${max_hp.value},
+                ${max_atk.value},
+                ${max_def.value},
+                ${max_spa.value},
+                ${max_spd.value},
+                ${max_spe.value}
+              ),
+              ${nature_filter_select.value},
+              0x${target_seed_input.value},
+              ${leeway.value},
+              "${game_select.value}",
+              "${sound_select.value}",
+              "${l_select.value}",
+              "${button_select.value}",
+              "${held_select.value}",
+              ${min_advance.value},
+              ${max_advance.value},
+              ${system_select.value},
+            )`
+          )
+          .then((results) => {
+            results_table_body.innerHTML = results;
+          });
+        }
       }
       function calculateIVs() {
         if (calculate_ivs_button.disabled) return;
@@ -168,12 +258,32 @@
               }
           });
       }
+
+      // Function to call fetch_default_seed() from the Python script, and then update the target_seed input box with the seed at index 50 for those settings.
+      function updateTargetSeed() {
+        if (target_seed_input.disabled) return;
+        console.log("Settings changed, fetching default seed.");
+        pyodide
+          .runPythonAsync(
+            `g3_calibration.fetch_default_seed(
+                "${game_select.value}",
+                "${sound_select.value}",
+                "${l_select.value}",
+                "${button_select.value}",
+                "${held_select.value}"
+            )`
+          ).then((result) => {
+            target_seed_input.value = result;
+          }
+        )
+      }
     </script>
     <div name="input-info" class="info">
       <select
         style="margin: 5px; width:250px"
         name="game-select"
         id="game_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <!-- <option value="painting">Painting Seed</option>
@@ -192,6 +302,7 @@
         style="margin: 5px; width:250px"
         name="sound-select"
         id="sound_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="mono">Mono</option>
@@ -203,6 +314,7 @@
         style="margin: 5px; width:250px"
         name="l-select"
         id="l_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="la">L=A</option>
@@ -215,6 +327,7 @@
         style="margin: 5px; width:250px"
         name="button-select"
         id="button_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="a">A</option>
@@ -227,6 +340,7 @@
         style="margin: 5px; width:250px"
         name="held-select"
         id="held_select"
+        onChange="updateTargetSeed()"
         disabled
       >
         <option value="none">None</option>
@@ -238,6 +352,19 @@
         <option value="blackout_al">Blackout A+L</option>
       </select>
       <label for="held-select"> - Held Button</label>
+      <br />
+      <select
+        style="margin: 5px; width:250px"
+        name="system-select"
+        id="system_select"
+        disabled
+      >
+        <option value=-260>GBA</option>
+        <option value=200>GameBoy Player</option>
+        <option value=800>DS</option>
+        <option value=1616>3DS (open_agb_firm)</option>
+      </select>
+      <label for="system-select"> - System</label>
       <br />
       <input
         style="margin: 5px"
@@ -287,9 +414,27 @@
         <option value="1">Static 1</option>
         <option value="2">Static 2</option>
         <option value="4">Static 4</option>
+        <option value="1">Wild 1</option>
+        <option value="2">Wild 2</option>
+        <option value="4">Wild 4</option>
       </select>
       <label for="method-select"> - Encounter Method</label>
       <br />
+      <select
+        style="margin: 5px; width: 150px"
+        name="encounter-select"
+        id="encounter_select"
+        disabled
+        hidden
+      >
+        <option value="Grass">Grass</option>
+        <option value="Surf">Surf</option>
+        <option value="Super Rod">Super Rod</option>
+        <option value="Good Rod">Good Rod</option>
+        <option value="Old Rod">Old Rod</option>
+      </select>
+      <label for="encounter-select" id="enc_label" hidden> - Encounter Type</label>
+      <br id="enc_br" hidden/>
       <input
         type="number"
         min="0"
@@ -314,9 +459,21 @@
       <br />
       <select
         style="margin: 5px; width: 150px"
+        name="shiny-filter-select"
+        id="shiny_filter_select"
+      >
+        <option value="65536">Any</option>
+        <option value="1">Square</option>
+        <option value="8">Star/Square</option>
+      </select>
+      <label for="shiny-filter-select"> - Shiny Filter</label>
+      <br />
+      <select
+        style="margin: 5px; width: 150px"
         name="nature-filter-select"
         id="nature_filter_select"
       >
+        <option value="None">Any</option>
         <option value="0">Hardy</option>
         <option value="1">Lonely</option>
         <option value="2">Brave</option>
@@ -349,11 +506,14 @@
         style="margin: 5px; width: 150px"
         name="species-select"
         id="species_select"
+        hidden
       ></select>
-      <label for="species-select"> - IV Calculator Species</label>
+      <label for="species-select" id="species_label" hidden> - IV Calculator Species</label>
+      <br id="iv_filter_br" hidden/>
+      <label for="calculate_ivs_button" id="calcIV_label" hidden>IV Calculation disabled. Searching all Natures.</label>
       <br />
-      <textarea name="stat-entry" id="stat_entry"></textarea>
-      <label for="stat-entry"> - IV Calculator Stat Entry</label>
+      <textarea name="stat-entry" id="stat_entry" hidden></textarea>
+      <label for="stat-entry" id="stat_label" hidden> - IV Calculator Stat Entry</label>
       <br />
       <button
         style="margin: 5px"
@@ -361,6 +521,7 @@
         onclick="calculateIVs()"
         id="calculate_ivs_button"
         disabled
+        hidden
       >
         Calculate IVs
       </button>
@@ -409,11 +570,12 @@
       </button>
     </div>
     <div name="results" id="results_div" class="info">
-      <table name="results-table" id="states">
+      <table name="results-table" id="states" class="wild-table">
         <thead>
           <tr>
             <th>Seed</th>
             <th>Advance</th>
+            <th>Slot</th>
             <th>PID</th>
             <th>Shiny</th>
             <th>Nature</th>

@@ -70,8 +70,12 @@ def distance(state0: int, state1: int) -> int:
 
 # base seed is an arbitrary starting point, it can be anything as long as it is consistent
 BASE_SEED = 0
-DATA = np.load(importlib_resources.files(resources).joinpath("generated/ten_lines_precalc.npy"))
-RTC_DATA = np.load(importlib_resources.files(resources).joinpath("generated/rtc_data.npy"))
+DATA = np.load(
+    importlib_resources.files(resources).joinpath("generated/ten_lines_precalc.npy")
+)
+RTC_DATA = np.load(
+    importlib_resources.files(resources).joinpath("generated/rtc_data.npy")
+)
 
 
 with gzip.open(
@@ -102,9 +106,7 @@ def filter_frlg(
             for l, data in data.items():
                 for button, data in data.items():
                     for held, data in data.items():
-                        data = data.get(
-                            str(seed), None
-                        )
+                        data = data.get(str(seed), None)
                         if data is not None:
                             yield (
                                 advance,
@@ -149,11 +151,18 @@ def ten_lines(
             for (advance, seed) in find_initial_seeds(target_seed, result_count)
         )
     elif game == "rtc":
-        return filter_rtc(find_initial_seeds(target_seed, result_count=RTC_DATA.shape[0], data=RTC_DATA), result_count)
+        return filter_rtc(
+            find_initial_seeds(
+                target_seed, result_count=RTC_DATA.shape[0], data=RTC_DATA
+            ),
+            result_count,
+        )
     return filter_frlg(find_initial_seeds(target_seed), result_count, game)
 
 
-def find_initial_seeds(target_seed: int, result_count: int = 0x10000, data: np.ndarray = DATA) -> np.ndarray:
+def find_initial_seeds(
+    target_seed: int, result_count: int = 0x10000, data: np.ndarray = DATA
+) -> np.ndarray:
     """Efficiently sort all possible initial seeds by those closest to a target seed"""
     # by adding the distance from initial -> base seed + the distance from base seed -> target seed,
     # the result is the distance from initial -> target seed
@@ -202,9 +211,13 @@ def main():
     print(f"{sys.version=}")
 
 
-def run_ten_lines(target_seed: int, num_results: int, game: str, params: str = "") -> str:
+def run_ten_lines(
+    target_seed: int, num_results: int, game: str, system_ms: int, params: str = ""
+) -> str:
     """Run ten lines to find origin seeds"""
     # no longer actually 10 lines
+    if params and not params.startswith("&"):
+        params = f"&{params}"
 
     return "".join(
         (
@@ -213,20 +226,19 @@ def run_ten_lines(target_seed: int, num_results: int, game: str, params: str = "
             f"<td>{seed:04X}</td>"
             f"<td>{advance}</td>"
             f"<td>{floor(seed_frame + advance)}</td>"
-            f"<td>{datetime.timedelta(seconds=frame_to_ms(seed_frame + advance)//1000)}</td>"
+            f"<td>{datetime.timedelta(seconds=((frame_to_ms(seed_frame + advance) + system_ms))//1000)}</td>"
             + (
-                f"<td>{frame_to_ms(seed_frame)}ms</td>"
+                f"<td>{system_ms + frame_to_ms(seed_frame)}ms</td>"
                 if game != "rtc"
-                else
-                f"<td>{datetime.datetime(year=2000, month=1, day=1)+datetime.timedelta(seconds=seed_frame/60)}"
+                else f"<td>{datetime.datetime(year=2000, month=1, day=1)+datetime.timedelta(seconds=seed_frame/60)}"
                 f" | {datetime.timedelta(seconds=seed_frame/60)}</td>"
             )
             + f"<td>{info}</td>"
             "<td>"
-                f"<button onclick=\"window.open('./g3-calibration?target_seed={seed:X}&{params}&{seed_params}', '_blank')\""
-                "class=\"button-1\">"
-                    "Open in calibration"
-                "</button>"
+            f"<button onclick=\"window.open('./g3-calibration?target_seed={seed:X}{params}&{seed_params}&system_ms={system_ms}', '_blank')\""
+            'class="button-1">'
+            "Open in calibration"
+            "</button>"
             "</td>"
             "</tr>"
         )

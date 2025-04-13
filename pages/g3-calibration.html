@@ -49,9 +49,9 @@
         document.getElementById("leeway").value = params.get("leeway") || "20";
         document.getElementById("min_advance").value = params.get("min_advance") || "0";
         document.getElementById("max_advance").value = params.get("max_advance") || "500";
-        document.getElementById("system_select").value = params.get("system_ms") || "-260"; // Default to GBA offset
-        document.getElementById("encounter_select").value = params.get("enc_type") || "Grass"; // Default to Grass
-        document.getElementById("nature_filter_select").value = "0"; // Default to Hardy
+        document.getElementById("system_select").value = params.get("system_ms") || "-260";
+        document.getElementById("encounter_select").value = params.get("enc_type") || "Grass";
+        document.getElementById("nature_filter_select").value = "0";
         pyodide = await loadPyodide();
         await pyodide.loadPackage("micropip");
         await pyodide.loadPackage("numpy");
@@ -89,7 +89,6 @@
         system_select.disabled = false;
         encounter_select.disabled = false;
         notice_footer.innerHTML = "Heavily based on PokeFinder";
-        //EventListener for method_select. This is used to hide the Slot column for static methods, and also the encounter_select options.
         method_select.addEventListener('change', (event) => {
           const is_wild = [3, 4, 5].includes(method_select.selectedIndex);
           states.className = is_wild ? "wild-table" : "static-table";
@@ -99,16 +98,9 @@
           enc_br.hidden = !is_wild;
           results_table_body.innerHTML = "";
         })
-        //Set the status of results table and encounter_select on page load.
-        const is_wild = [3, 4, 5].includes(method_select.selectedIndex);
-        states.className = is_wild ? "wild-table" : "static-table";
-        encounter_select.disabled = !is_wild;
-        encounter_select.hidden = !is_wild;
-        enc_label.hidden = !is_wild;
-        enc_br.hidden = !is_wild;
-        //EventListener for nature_filter_select. Allows user to select "Any" and search for Shiny Pokemon of any nature. Disables IV calcuation and resets min/max when changed.
+        method_select.dispatchEvent(new Event('change'));
         nature_filter_select.addEventListener('change', (event) => {
-          const is_any = [0].includes(nature_filter_select.selectedIndex);
+          const is_any = nature_filter_select.selectedIndex == 0;
           species_select.hidden = is_any;
           species_label.hidden = is_any;
           stat_entry.hidden = is_any;
@@ -131,14 +123,7 @@
             max_spe.value = 31;
           }
         })
-        const is_any = [0].includes(nature_filter_select.selectedIndex);
-        species_select.hidden = is_any;
-        species_label.hidden = is_any;
-        stat_entry.hidden = is_any;
-        stat_label.hidden = is_any;
-        calculate_ivs_button.disabled = is_any;
-        calcIV_label.hidden = !is_any;
-        iv_filter_br.hidden = !is_any;
+        nature_filter_select.dispatchEvent(new Event('change'));
       }
 
       function submitData() {
@@ -148,38 +133,38 @@
         if (is_wild) {
           pyodide.runPythonAsync(
             `g3_calibration.check_frlg_wild(
-            ${method_select.value},
-            ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
-            ${shiny_filter_select.value},
-            (
-              ${min_hp.value},
-              ${min_atk.value},
-              ${min_def.value},
-              ${min_spa.value},
-              ${min_spd.value},
-              ${min_spe.value}
-            ),
-            (
-              ${max_hp.value},
-              ${max_atk.value},
-              ${max_def.value},
-              ${max_spa.value},
-              ${max_spd.value},
-              ${max_spe.value}
-            ),
-            ${nature_filter_select.value},
-            0x${target_seed_input.value},
-            ${leeway.value},
-            "${game_select.value}",
-            "${sound_select.value}",
-            "${l_select.value}",
-            "${button_select.value}",
-            "${held_select.value}",
-            ${min_advance.value},
-            ${max_advance.value},
-            ${system_select.value},
-            "${encounter_select.value}"
-          )`
+              ${method_select.value},
+              ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
+              ${shiny_filter_select.value},
+              (
+                ${min_hp.value},
+                ${min_atk.value},
+                ${min_def.value},
+                ${min_spa.value},
+                ${min_spd.value},
+                ${min_spe.value}
+              ),
+              (
+                ${max_hp.value},
+                ${max_atk.value},
+                ${max_def.value},
+                ${max_spa.value},
+                ${max_spd.value},
+                ${max_spe.value}
+              ),
+              ${nature_filter_select.value},
+              0x${target_seed_input.value},
+              ${leeway.value},
+              "${game_select.value}",
+              "${sound_select.value}",
+              "${l_select.value}",
+              "${button_select.value}",
+              "${held_select.value}",
+              ${min_advance.value},
+              ${max_advance.value},
+              ${system_select.value},
+              "${encounter_select.value}"
+            )`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -188,37 +173,37 @@
         else {
           pyodide.runPythonAsync(
             `g3_calibration.check_frlg(
-            ${method_select.value},
-            ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
-            ${shiny_filter_select.value},
-            (
-              ${min_hp.value},
-              ${min_atk.value},
-              ${min_def.value},
-              ${min_spa.value},
-              ${min_spd.value},
-              ${min_spe.value}
-            ),
-            (
-              ${max_hp.value},
-              ${max_atk.value},
-              ${max_def.value},
-              ${max_spa.value},
-              ${max_spd.value},
-              ${max_spe.value}
-            ),
-            ${nature_filter_select.value},
-            0x${target_seed_input.value},
-            ${leeway.value},
-            "${game_select.value}",
-            "${sound_select.value}",
-            "${l_select.value}",
-            "${button_select.value}",
-            "${held_select.value}",
-            ${min_advance.value},
-            ${max_advance.value},
-            ${system_select.value},
-          )`
+              ${method_select.value},
+              ${parseInt(tid_input.value) ^ parseInt(sid_input.value)},
+              ${shiny_filter_select.value},
+              (
+                ${min_hp.value},
+                ${min_atk.value},
+                ${min_def.value},
+                ${min_spa.value},
+                ${min_spd.value},
+                ${min_spe.value}
+              ),
+              (
+                ${max_hp.value},
+                ${max_atk.value},
+                ${max_def.value},
+                ${max_spa.value},
+                ${max_spd.value},
+                ${max_spe.value}
+              ),
+              ${nature_filter_select.value},
+              0x${target_seed_input.value},
+              ${leeway.value},
+              "${game_select.value}",
+              "${sound_select.value}",
+              "${l_select.value}",
+              "${button_select.value}",
+              "${held_select.value}",
+              ${min_advance.value},
+              ${max_advance.value},
+              ${system_select.value},
+            )`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -280,19 +265,15 @@
         console.log("Settings changed, fetching default seed.");
         pyodide
           .runPythonAsync(
-        `g3_calibration.fetch_default_seed(
-            "${game_select.value}",
-            "${sound_select.value}",
-            "${l_select.value}",
-            "${button_select.value}",
-            "${held_select.value}"
-        )`
-          ).then((results) => {
-          if (results === "ERROR") {
-            target_seed_input.value = "No seed found.";
-          } else {
-            target_seed_input.value = results.toString(16).toUpperCase();
-          }
+            `g3_calibration.fetch_default_seed(
+                "${game_select.value}",
+                "${sound_select.value}",
+                "${l_select.value}",
+                "${button_select.value}",
+                "${held_select.value}"
+            )`
+          ).then((result) => {
+            target_seed_input.value = result;
           }
         )
       }
@@ -325,7 +306,7 @@
         disabled
       >
         <option value="mono">Mono</option>
-        <option value="stereo">Stereo</option>3000
+        <option value="stereo">Stereo</option>
       </select>
       <label for="sound-select"> - Sound</label>
       <br />
@@ -372,20 +353,19 @@
       </select>
       <label for="held-select"> - Held Button</label>
       <br />
-      <!---Selection Box for System, which contains an offset ms value to be pulled into python script for seed time calculation adjustment.-->
       <select
-      style="margin: 5px; width:250px"
-      name="system-select"
-      id="system_select"
-      disabled
-    ><!---Selections are passed via URL from Ten Lines as signed int using new param-->
-      <option value=-260>GBA</option>
-      <option value=200>GameBoy Player</option>
-      <option value=800>DS</option>
-      <option value=1616>3DS (open_agb_firm)</option>
-    </select>
-    <label for="system-select"> - System</label>
-    <br />
+        style="margin: 5px; width:250px"
+        name="system-select"
+        id="system_select"
+        disabled
+      >
+        <option value=-260>GBA</option>
+        <option value=200>GameBoy Player</option>
+        <option value=800>DS</option>
+        <option value=1616>3DS (open_agb_firm)</option>
+      </select>
+      <label for="system-select"> - System</label>
+      <br />
       <input
         style="margin: 5px"
         type="text"
@@ -434,26 +414,25 @@
         <option value="1">Static 1</option>
         <option value="2">Static 2</option>
         <option value="4">Static 4</option>
-        <!--Add Wild Options, which will trigger results table & SubmitData() to alter behavior-->
         <option value="1">Wild 1</option>
         <option value="2">Wild 2</option>
         <option value="4">Wild 4</option>
       </select>
       <label for="method-select"> - Encounter Method</label>
       <br />
-    <select
+      <select
         style="margin: 5px; width: 150px"
         name="encounter-select"
         id="encounter_select"
         disabled
         hidden
-    >
+      >
         <option value="Grass">Grass</option>
         <option value="Surf">Surf</option>
         <option value="Super Rod">Super Rod</option>
         <option value="Good Rod">Good Rod</option>
         <option value="Old Rod">Old Rod</option>
-    </select>
+      </select>
       <label for="encounter-select" id="enc_label" hidden> - Encounter Type</label>
       <br id="enc_br" hidden/>
       <input
@@ -478,15 +457,15 @@
       />
       <label for="sid-input"> - Secret ID</label>
       <br />
-    <select
-      style="margin: 5px; width: 150px"
-      name="shiny-filter-select"
-      id="shiny_filter_select"
-    >
-      <option value="65536">Any</option>
-      <option value="1">Square</option>
-      <option value="8">Star/Square</option>
-    </select>
+      <select
+        style="margin: 5px; width: 150px"
+        name="shiny-filter-select"
+        id="shiny_filter_select"
+      >
+        <option value="65536">Any</option>
+        <option value="1">Square</option>
+        <option value="8">Star/Square</option>
+      </select>
       <label for="shiny-filter-select"> - Shiny Filter</label>
       <br />
       <select
@@ -494,7 +473,7 @@
         name="nature-filter-select"
         id="nature_filter_select"
       >
-        <option value="99">Any</option> <!--99 will act as a placeholder for telling the search to check all natures for easy Shiny searching, also disables Calculate IVs-->
+        <option value="None">Any</option>
         <option value="0">Hardy</option>
         <option value="1">Lonely</option>
         <option value="2">Brave</option>

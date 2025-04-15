@@ -217,23 +217,25 @@ def pull_frlg_seeds():
     ).text
     sheet_csv = csv.reader(sheet_txt.split("\n"))
     for i, row in enumerate(sheet_csv):
-        if i == 0:
+        if i < 3:
             continue
         if row[0]:
             frame = int(row[0]) + 4062 / 2
 
             def add_seed(col, sound, l, button):
-                seed = int(row[col], 16)
-                eng_lg = frlg_seeds["lg"][sound][l][button]
-                for held in eng_lg.keys():
-                    offset_seed = (seed + ENG_OFFSETS[l][held]) & 0xFFFF
-                    if offset_seed not in eng_lg[held]:
-                        eng_lg[held][offset_seed] = frame
-                eu_lg = frlg_seeds["lg_eu"][sound][l][button]
-                for held in eu_lg.keys():
-                    offset_seed = (seed + EU_OFFSETS[l][held]) & 0xFFFF
-                    if offset_seed not in eu_lg[held]:
-                        eu_lg[held][offset_seed] = frame
+                seed_str = row[col]
+                if seed_str:
+                    seed = int(seed_str, 16)
+                    eng_lg = frlg_seeds["lg"][sound][l][button]
+                    for held in eng_lg.keys():
+                        offset_seed = (seed + ENG_OFFSETS[l][held]) & 0xFFFF
+                        if offset_seed not in eng_lg[held]:
+                               eng_lg[held][offset_seed] = frame
+                    eu_lg = frlg_seeds["lg_eu"][sound][l][button]
+                    for held in eu_lg.keys():
+                        offset_seed = (seed + EU_OFFSETS[l][held]) & 0xFFFF
+                        if offset_seed not in eu_lg[held]:
+                                eu_lg[held][offset_seed] = frame
 
             add_seed(3, "mono", "lr", "a")
             add_seed(4, "mono", "la", "a")
@@ -241,6 +243,14 @@ def pull_frlg_seeds():
             add_seed(6, "stereo", "lr", "a")
             add_seed(7, "stereo", "la", "a")
             add_seed(8, "stereo", "help", "a")
+            add_seed(9, "mono", "lr", "start")
+            add_seed(10, "mono", "la", "start")
+            add_seed(11, "mono", "help", "start")
+            add_seed(12, "stereo", "help", "start")
+            add_seed(13, "stereo", "lr", "start")
+            add_seed(14, "stereo", "la", "start")
+            add_seed(15, "stereo", "la", "l")
+            add_seed(16, "mono", "la", "l")
 
     sheet_txt = requests.get(
         FR_JPN_1_0_SHEET,

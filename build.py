@@ -186,11 +186,16 @@ def pull_frlg_seeds():
                     if seed < 0x10000:
                         eng_fr = frlg_seeds["fr"][sound][l][button]
                         for held in eng_fr.keys():
-                            eng_fr[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = frame
+                            offset_seed = (seed + ENG_OFFSETS[l][held]) & 0xFFFF
+                            if offset_seed not in eng_fr[held]:
+                                eng_fr[held][offset_seed] = frame
                         eu_fr = frlg_seeds["fr_eu"][sound][l][button]
                         for held in eu_fr.keys():
-                            eu_fr[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = frame
+                            offset_seed = (seed + EU_OFFSETS[l][held]) & 0xFFFF
+                            if offset_seed not in eu_fr[held]:
+                                eu_fr[held][offset_seed] = frame
 
+                            
             add_seed(3, "stereo", "la", "a")
             add_seed(7, "stereo", "help", "a")
             add_seed(11, "stereo", "lr", "a")
@@ -221,10 +226,14 @@ def pull_frlg_seeds():
                 seed = int(row[col], 16)
                 eng_lg = frlg_seeds["lg"][sound][l][button]
                 for held in eng_lg.keys():
-                    eng_lg[held][(seed + ENG_OFFSETS[l][held]) & 0xFFFF] = frame
+                    offset_seed = (seed + ENG_OFFSETS[l][held]) & 0xFFFF
+                    if offset_seed not in eng_lg[held]:
+                        eng_lg[held][offset_seed] = frame
                 eu_lg = frlg_seeds["lg_eu"][sound][l][button]
                 for held in eu_lg.keys():
-                    eu_lg[held][(seed + EU_OFFSETS[l][held]) & 0xFFFF] = frame
+                    offset_seed = (seed + EU_OFFSETS[l][held]) & 0xFFFF
+                    if offset_seed not in eu_lg[held]:
+                        eu_lg[held][offset_seed] = frame
 
             add_seed(3, "mono", "lr", "a")
             add_seed(4, "mono", "la", "a")
@@ -249,9 +258,9 @@ def pull_frlg_seeds():
                     seed = int(row[col], 16)
                     jpn_fr_1_0 = frlg_seeds["fr_jpn_1_0"][sound][l][button]
                     for held in jpn_fr_1_0.keys():
-                        jpn_fr_1_0[held][
-                            (seed + FR_JPN_1_0_OFFSETS[l][held]) & 0xFFFF
-                        ] = frame
+                        offset_seed = (seed + FR_JPN_1_0_OFFSETS[l][held]) & 0xFFFF
+                        if offset_seed not in jpn_fr_1_0[held]:
+                            jpn_fr_1_0[held][offset_seed] = frame
 
             add_seed(1, "mono", "lr", "a")
             add_seed(2, "mono", "la", "a")
@@ -276,9 +285,9 @@ def pull_frlg_seeds():
                     seed = int(row[col], 16)
                     jpn_fr_1_1 = frlg_seeds["fr_jpn_1_1"][sound][l][button]
                     for held in jpn_fr_1_1.keys():
-                        jpn_fr_1_1[held][
-                            (seed + FR_JPN_1_1_OFFSETS[l][held]) & 0xFFFF
-                        ] = frame
+                        offset_seed = (seed + FR_JPN_1_1_OFFSETS[l][held]) & 0xFFFF
+                        if offset_seed not in jpn_fr_1_1[held]:
+                            jpn_fr_1_1[held][offset_seed] = frame
 
             add_seed(1, "mono", "lr", "a")
             add_seed(2, "mono", "la", "a")
@@ -303,7 +312,9 @@ def pull_frlg_seeds():
                     seed = int(row[col], 16)
                     jpn_lg = frlg_seeds["lg_jpn"][sound][l][button]
                     for held in jpn_lg.keys():
-                        jpn_lg[held][(seed + LG_JPN_OFFSETS[l][held]) & 0xFFFF] = frame
+                        offset_seed = (seed + LG_JPN_OFFSETS[l][held]) & 0xFFFF
+                        if offset_seed not in jpn_lg[held]:
+                            jpn_lg[held][offset_seed] = frame
 
             add_seed(1, "mono", "lr", "a")
             add_seed(2, "mono", "la", "a")

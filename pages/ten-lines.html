@@ -35,7 +35,7 @@
         const params = new URLSearchParams(document.location.search);
         document.getElementById("seed_input").value = params.get("seed") || "DEADBEEF"
         document.getElementById("num_results_input").value = params.get("num_results") || "5"
-        document.getElementById("system_select").value = params.get("system") || "RSE"
+        document.getElementById("system_select").value = params.get("system_ms") || "-260"
         if (params.get("tid") != null) {
           forwardedParams += `tid=${params.get("tid")}`
         }
@@ -81,20 +81,18 @@
           // Disable and hide system select dropdown, label, and br (i hate html formatting) when Painting or RTC is selected
           system_select.disabled = is_rse;
           system_select.hidden = is_rse;
-          system_select.value = is_rse ? "RSE" : "GBA";
           system_label.hidden = is_rse;
           system_br.hidden = is_rse;
         })
         const is_rse = game_select.value == "painting" || game_select.value == "rtc";
         states.className = is_rse ? "rse-table" : "frlg-table";
-        system_select.value = is_rse ? "RSE" : "GBA";
       }
 
       function submitData() {
         console.log("Submitted Data");
         pyodide
           .runPythonAsync(
-            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}", "${system_select.value}", "${forwardedParams}")`
+            `ten_lines.run_ten_lines(0x${seed_input.value}, ${num_results_input.value}, "${game_select.value}", ${system_select.value}, "${forwardedParams}")`
           )
           .then((results) => {
             results_table_body.innerHTML = results;
@@ -148,11 +146,10 @@
         disabled
         hidden
       >
-      <option value="GBA">GBA</option>
-      <option value="GBP">GameBoy Player</option>
-      <option value="NDS">DS</option>
-      <option value="3DS">3DS (open_agb_firm)</option>
-      <option value="RSE" hidden>RSE</option>
+      <option value=-260>GBA</option>
+      <option value=200>GameBoy Player</option>
+      <option value=800>DS</option>
+      <option value=1616>3DS (open_agb_firm)</option>
       </select>
       <label for="system-select" id="system_label" hidden> - System</label>
       <br id="system_br" hidden/>

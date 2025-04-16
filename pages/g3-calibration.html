@@ -49,7 +49,7 @@
         document.getElementById("leeway").value = params.get("leeway") || "20";
         document.getElementById("min_advance").value = params.get("min_advance") || "0";
         document.getElementById("max_advance").value = params.get("max_advance") || "500";
-        document.getElementById("system_select").value = params.get("system_ms") || "-260";
+        document.getElementById("system_select").value = params.get("system") || "GBA";
         document.getElementById("encounter_select").value = params.get("enc_type") || "Grass";
         document.getElementById("nature_filter_select").value = "0";
         pyodide = await loadPyodide();
@@ -202,7 +202,7 @@
               "${held_select.value}",
               ${min_advance.value},
               ${max_advance.value},
-              ${system_select.value},
+              "${system_select.value}",
             )`
           )
           .then((results) => {
@@ -359,10 +359,10 @@
         id="system_select"
         disabled
       >
-        <option value=-260>GBA</option>
-        <option value=200>GameBoy Player</option>
-        <option value=800>DS</option>
-        <option value=1616>3DS (open_agb_firm)</option>
+        <option value="GBA">GBA</option>
+        <option value="GBP">GameBoy Player</option>
+        <option value="NDS">DS</option>
+        <option value="3DS">3DS (open_agb_firm)</option>
       </select>
       <label for="system-select"> - System</label>
       <br />

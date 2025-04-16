@@ -212,7 +212,7 @@ def main():
 
 
 def run_ten_lines(
-    target_seed: int, num_results: int, game: str, system_ms: int, params: str = ""
+    target_seed: int, num_results: int, game: str, system: str, params: str = ""
 ) -> str:
     """Run ten lines to find origin seeds"""
     # no longer actually 10 lines
@@ -226,16 +226,16 @@ def run_ten_lines(
             f"<td>{seed:04X}</td>"
             f"<td>{advance}</td>"
             f"<td>{floor(seed_frame + advance)}</td>"
-            f"<td>{datetime.timedelta(seconds=((frame_to_ms(seed_frame + advance) + system_ms))//1000)}</td>"
+            f"<td>{datetime.timedelta(seconds=((frame_to_ms(seed_frame + advance, system)))//1000)}</td>"
             + (
-                f"<td>{system_ms + frame_to_ms(seed_frame)}ms</td>"
+                f"<td>{frame_to_ms(seed_frame, system)}ms</td>"
                 if game != "rtc"
                 else f"<td>{datetime.datetime(year=2000, month=1, day=1)+datetime.timedelta(seconds=seed_frame/60)}"
                 f" | {datetime.timedelta(seconds=seed_frame/60)}</td>"
             )
             + f"<td>{info}</td>"
             "<td>"
-            f"<button onclick=\"window.open('./g3-calibration?target_seed={seed:X}{params}&{seed_params}&system_ms={system_ms}', '_blank')\""
+            f"<button onclick=\"window.open('./g3-calibration?target_seed={seed:X}{params}&{seed_params}&system={system}', '_blank')\""
             'class="button-1">'
             "Open in calibration"
             "</button>"

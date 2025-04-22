@@ -246,11 +246,11 @@ def pull_frlg_seeds():
             add_seed(9, "mono", "lr", "start")
             add_seed(10, "mono", "la", "start")
             add_seed(11, "mono", "help", "start")
-            add_seed(12, "stereo", "help", "start")
-            add_seed(13, "stereo", "lr", "start")
-            add_seed(14, "stereo", "la", "start")
-            add_seed(15, "stereo", "la", "l")
-            add_seed(16, "mono", "la", "l")
+            add_seed(12, "stereo", "lr", "start")
+            add_seed(13, "stereo", "la", "start")
+            add_seed(14, "stereo", "help", "start")
+            add_seed(15, "mono", "la", "l")
+            add_seed(16, "stereo", "la", "l")
 
     sheet_txt = requests.get(
         FR_JPN_1_0_SHEET,
